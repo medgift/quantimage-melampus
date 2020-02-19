@@ -1,3 +1,9 @@
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.decomposition import PCA
+from sklearn.model_selection import cross_val_score
+
 class PocClassifier(object):
     def __init__(self, data= np.ndarray, scaling= False, dim_red= (False, int)):
         self.classifier = LogisticRegression()
