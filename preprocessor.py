@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, normalize, OrdinalEncoder
 
 import numpy as np
 import pandas
-
+import csv
 
 class Preprocessor(object):
     def __init__(self, data=pandas.DataFrame):
@@ -19,6 +19,7 @@ class Preprocessor(object):
         self.header = self.extract_header()
 
     def extract_header(self):
+        header =
         pass
 
     def standarize_data(self):
