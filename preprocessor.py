@@ -3,11 +3,11 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, normalize, OrdinalEncoder
 
 import numpy as np
-import pandas
+import pandas as pd
 import csv
 
 class Preprocessor(object):
-    def __init__(self, data=pandas.DataFrame):
+    def __init__(self, filename: str):
         '''
         A preprocessor for image datasets.
         * dimensionality reduction
@@ -15,12 +15,18 @@ class Preprocessor(object):
         * Normalization
         * Removal of high correlated features
         '''
-        self.data = data
-        self.header = self.extract_header()
 
-    def extract_header(self):
-        header =
-        pass
+        self.header, self.data = self.import_data_from_csvfile(filename=filename)
+
+    def import_data_from_csvfile(self, filename: str):
+        try:
+            df = pd.read_csv(filename)
+
+        except Exception as e:
+            print('error in reading file {}'.format(e))
+            return ''
+
+        return data
 
     def standarize_data(self):
         scaler = StandardScaler().fit(self.data)
@@ -41,3 +47,4 @@ class Preprocessor(object):
         '''
 
         return OrdinalEncoder().fit_transform(X).to_array()
+
