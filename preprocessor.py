@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import csv
 
+
 class Preprocessor(object):
     def __init__(self, filename: str):
         '''
@@ -16,17 +17,16 @@ class Preprocessor(object):
         * Removal of high correlated features
         '''
 
-        self.header, self.data = self.import_data_from_csvfile(filename=filename)
+        self.data = self.import_data_from_csvfile(filename=filename)
 
-    def import_data_from_csvfile(self, filename: str):
+    @staticmethod
+    def import_data_from_csvfile(filename: str):
         try:
             df = pd.read_csv(filename)
-
+            return df
         except Exception as e:
             print('error in reading file {}'.format(e))
             return ''
-
-        return data
 
     def standarize_data(self):
         scaler = StandardScaler().fit(self.data)
@@ -48,3 +48,6 @@ class Preprocessor(object):
 
         return OrdinalEncoder().fit_transform(X).to_array()
 
+
+pre = Preprocessor(filename='../synthetic_data/output_L0_GTVL.csv')
+data_tr = pre.standarize_data()

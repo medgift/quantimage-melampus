@@ -1,12 +1,22 @@
-from sklearn.feature_selection import VarianceThreshold
-from sklearn.datasets import load_iris
+from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
+from sklearn.model_selection import StratifiedKFold
+from sklearn.linear_model import LogisticRegression
+import pandas as pd
+import numpy as np
 
 
 class FeatureSelector(object):
-    def __init__(self, data):
+    def __init__(self, data: pd.DataFrame, outcomes=list):
+        '''
+        Feature selection based on two methods: variance threshold for large number of features. Recursive Feature
+        Elimination for identifying the optimal number features and select the best ones for classification.
+        :param data: indepedent variables (all the features)
+        :param outcomes: target variable (labels)
+        '''
         self.data = data
+        self.outcomes = outcomes
 
-    def variance_threshold(self, p_val=int):
+    def variance_threshold(self, p_val=None):
         '''
          It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
         :param p_val: p_value for defining the threshold. default value: 0.8
@@ -20,15 +30,35 @@ class FeatureSelector(object):
         sel = VarianceThreshold(threshold=thres)
         return sel.fit_transform(self.data)
 
-    def pearson_corr(self):
+    def drop_correlated_features(self, score: float, metric: str):
+        df = self.data
+        corr_matrix = df.corr(method=metric).abs()  # correlation matrix
+        upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+        # Find index of feature columns with correlation greater than a defined score and then drop these features
+        to_drop = [column for column in upper.columns if any(upper[column] > score)]
+        df = df.drop(df[to_drop], axis=1)
+        return df
 
-        pass
+    def identify_correlated_features_with_target_variable(self, score: float, metric: str, target_var: str):
+        '''
+        It should be used only for regression tasks. The target variable must be included into the dataset.
+        '''
+        df = self.data
+        corr_matrix = df.corr(method=metric).abs()  # correlation matrix
+        # Correlation with output variable
+        cor_target = abs(corr_matrix[target_var])
+        corr_feats = cor_target[cor_target > score]
+        relevant_feats = corr_feats.drop(target_var) # remove target variable
+        return relevant_feats
 
     def rfe(self):
-
-        pass
-
-
-fs = FeatureSelector()
-x_tr = fs.variance_threshold(p_val=0.9)
-x = 1
+        '''
+        Select the features that contribute most to the target variable.
+        Slow method. It should be used for small number of features (less than 20)
+        :return: the selected features
+        '''
+        logreg = LogisticRegression()
+        rfecv = RFECV(estimator=logreg, cv=StratifiedKFold(), scoring='accuracy', n_jobs=-1)
+        rfecv.fit(self.data, self.outcomes)
+        k = rfecv.n_features_
+        return SelectKBest(k=k).fit_transform(self.data)

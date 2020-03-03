@@ -5,8 +5,9 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 
+
 class PocClassifier(object):
-    def __init__(self, data= np.ndarray, scaling= False, dim_red= (False, int)):
+    def __init__(self, data=np.ndarray, scaling=False, dim_red=(False, int)):
         self.classifier = LogisticRegression()
         if scaling:
             data = self.transform_training_set(data=data)
@@ -17,7 +18,6 @@ class PocClassifier(object):
         self.train(data)
         self.assess_classifier()
 
-
     @staticmethod
     def transform_training_set(data):
         scaler = StandardScaler().fit(data)
@@ -25,11 +25,11 @@ class PocClassifier(object):
         return data_scaled
 
     @staticmethod
-    def dimensionality_reduction(data= np.ndarray, num_components= int):
+    def dimensionality_reduction(data=np.ndarray, num_components=int):
         pca = PCA(n_components=num_components)
         return pca.fit_transform(data)
 
-    def train(self, data= np.ndarray):
+    def train(self, data=np.ndarray):
         self.classifier.fit(data)
 
     def assess_classifier(self):
