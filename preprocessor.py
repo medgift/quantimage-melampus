@@ -8,7 +8,7 @@ import csv
 
 
 class Preprocessor(object):
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, outcomes= list):
         '''
         A preprocessor for image datasets.
         * dimensionality reduction
@@ -17,15 +17,19 @@ class Preprocessor(object):
         * Removal of high correlated features
         '''
 
-        self.data = self.import_data_from_csvfile(filename=filename)
+        self.ids, self.data = self.process_data_from_csv(filename=filename)
+        self.outcomes = outcomes
 
     @staticmethod
-    def import_data_from_csvfile(filename: str):
+    def process_data_from_csv(filename: str):
         try:
             df = pd.read_csv(filename)
-            return df
+            # store patient ID in another list
+            patient_IDs = df['PatientID']
+            df = df.drop('PatientID', axis=1)
+            return patient_IDs, df
         except Exception as e:
-            print('error in reading file {}'.format(e))
+            print('error in processing csv file {}'.format(e))
             return ''
 
     def standarize_data(self):
@@ -39,15 +43,21 @@ class Preprocessor(object):
         pca = PCA(n_components=num_components)
         return pca.fit_transform(self.data)
 
-    @staticmethod
-    def encode_categorical_features():
+    def encode_categorical_features(self):
         '''
         transform categorical features to integers.
-        e.g.:
+        e.g. (directly from sklearn): A person could have features ["male", "female"], ["from Europe", "from US", "from Asia"],
+        ["uses Firefox", "uses Chrome", "uses Safari", "uses Internet Explorer"]. Such features can be efficiently
+        coded as integers, for instance ["male", "from US", "uses Internet Explorer"] could be expressed as [0, 1, 3]
+        while ["female", "from Asia", "uses Chrome"] would be [1, 2, 1].
         '''
-
+        self.identify_categorical_features()
         return OrdinalEncoder().fit_transform(X).to_array()
 
+    def identify_categorical_features(self):
+        '''on going'''
+        pass
 
-pre = Preprocessor(filename='../synthetic_data/output_L0_GTVL.csv')
-data_tr = pre.standarize_data()
+
+# pre = Preprocessor(filename='../synthetic_data/output_L0_GTVL.csv')
+# data_tr = pre.standarize_data()

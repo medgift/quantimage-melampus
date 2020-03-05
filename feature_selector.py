@@ -3,18 +3,14 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
 import numpy as np
+from preprocessor import Preprocessor
 
+'''
+Feature selection based on two methods: variance threshold for large number of features. Recursive Feature
+Elimination for identifying the optimal number features and select the best ones for classification.
+'''
 
-class FeatureSelector(object):
-    def __init__(self, data: pd.DataFrame, outcomes=list):
-        '''
-        Feature selection based on two methods: variance threshold for large number of features. Recursive Feature
-        Elimination for identifying the optimal number features and select the best ones for classification.
-        :param data: indepedent variables (all the features)
-        :param outcomes: target variable (labels)
-        '''
-        self.data = data
-        self.outcomes = outcomes
+class FeatureSelector(Preprocessor):
 
     def variance_threshold(self, p_val=None):
         '''
@@ -48,7 +44,7 @@ class FeatureSelector(object):
         # Correlation with output variable
         cor_target = abs(corr_matrix[target_var])
         corr_feats = cor_target[cor_target > score]
-        relevant_feats = corr_feats.drop(target_var) # remove target variable
+        relevant_feats = corr_feats.drop(target_var)  # remove target variable
         return relevant_feats
 
     def rfe(self):
@@ -59,6 +55,10 @@ class FeatureSelector(object):
         '''
         logreg = LogisticRegression()
         rfecv = RFECV(estimator=logreg, cv=StratifiedKFold(), scoring='accuracy', n_jobs=-1)
-        rfecv.fit(self.data, self.outcomes)
-        k = rfecv.n_features_
-        return SelectKBest(k=k).fit_transform(self.data)
+        try:
+            rfecv.fit(self.data, self.outcomes)
+            k = rfecv.n_features_
+            return SelectKBest(k=k).fit_transform(self.data)
+        except Exception as e:
+            print("EXCEPTION IN MODEL FIT: {}".format(e))
+            pass
