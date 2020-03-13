@@ -1,0 +1,6 @@
+README.md
+setup.py
+quantimage_melampus.egg-info/PKG-INFO
+quantimage_melampus.egg-info/SOURCES.txt
+quantimage_melampus.egg-info/dependency_links.txt
+quantimage_melampus.egg-info/top_level.txt

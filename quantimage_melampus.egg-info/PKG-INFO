@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: quantimage-melampus
+Version: 0.0.1
+Summary: Melampus: Machine learning package for Imagine infrastracture.
+Home-page: https://github.com/orfi2017/imagine_ml_infra/
+Author: Orfeas Aidonopoulos
+Author-email: orfeas.aidonopoulos@hevs.ch
+License: UNKNOWN
+Description: # IMAGINE ML infra package
+        
+        This is the ML package for Imagine project. 
+        
+        [.........]
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
