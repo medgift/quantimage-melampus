@@ -1,9 +1,8 @@
 from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
-import pandas as pd
 import numpy as np
-from preprocessor import Preprocessor
+from back_up.preprocessor import Preprocessor
 
 '''
 Feature selection based on two methods: variance threshold for large number of features. Recursive Feature

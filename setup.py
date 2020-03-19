@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="quantimage-melampus", # Replace with your own username
+    name="melampus", # Replace with your own username
     version="0.0.1",
     author="Orfeas Aidonopoulos",
     author_email="orfeas.aidonopoulos@hevs.ch",
