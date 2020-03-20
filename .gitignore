@@ -4,3 +4,4 @@ orfeas_tests/
 dist/
 back_up/
 quantimage_melampus.egg-info/
+melampus/__pycache__/
