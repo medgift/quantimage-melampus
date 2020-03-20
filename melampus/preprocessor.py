@@ -8,47 +8,49 @@ import csv
 
 
 class Preprocessor(object):
-    def __init__(self, filename: str, target_col= str):
+    def __init__(self, filename: str, target_col= None):
         '''
         A preprocessor for image datasets.
         * dimensionality reduction
         * Standarization scaling
         * Normalization
         * Removal of high correlated features
-        '''
+        ''' ''
+        self.filename = filename
+        self.target_col = target_col
+        self.outcomes = []
+        self.ids = pd.Series
+        self.data = pd.DataFrame
+        self.process_data_from_csv()
 
-        self.ids, self.data = self.process_data_from_csv(filename=filename)
-        self.outcomes = self.data[target_col]
+        if target_col is not None:
+            self.identify_outcomes(df)
 
-
-    def extract_outcomes(self,target_col: str):
-        df =self.data
-        return self.data
-        pass
-
-    def process_data_from_csv(self, filename: str):
+    def process_data_from_csv(self):
         try:
-            df = pd.read_csv(filename)
+            df = pd.read_csv(self.filename)
             # store patient ID in another list
-            patient_IDs = df['PatientID']
-            df = df.drop('PatientID', axis=1)
-            #TODO remove cols with nans
-            return patient_IDs, df
+            self.ids = df['PatientID']
+            df = df.drop('PatientID', axis=1) # delete column with Ids
+            self.data = df.dropna(axis=1) # delete columns with nans
         except Exception as e:
             print('error in processing csv file {}'.format(e))
             return ''
 
+    def identify_outcomes(self, dataframe = pd.DataFrame):
+        self.outcomes = dataframe[self.target_col]
+        self.data = dataframe.drop(self.target_col, axis=1)
+
     def standarize_data(self):
         scaler = StandardScaler().fit(self.data)
         self.data = scaler.transform(self.data)
-        #return scaler.transform(self.data)
 
     def normalize_data(self, norm=str):
-        return normalize(self.data, norm=norm)
+        self.data = normalize(self.data, norm=norm)
 
     def dimensionality_reduction(self, num_components=int):
         pca = PCA(n_components=num_components)
-        return pca.fit_transform(self.data)
+        self.data = pca.fit_transform(self.data)
 
     def encode_categorical_features(self):
         '''
