@@ -6,11 +6,22 @@ from melampus.preprocessor import Preprocessor
 
 
 class MelampusClassifier(object):
-    def __init__(self, filename: str, outcomes=[], target_col=None, scaling=False, dim_red=(False, 0)):
+    def __init__(self, filename: str, outcomes=[], target_col=None, scaling=False, dim_red=(False, 0), normalize=False):
+        '''
+
+        :param filename:
+        :param outcomes:
+        :param target_col:
+        :param scaling:
+        :param dim_red:
+        :param normalize: Activator and norm.
+                            The norm to use to normalize each non zero sample(values: 'l1' or 'l2'
+        '''
         self.filename = filename
         self.target_col = target_col
         self.scaling = scaling
-        self.dim_red, self.num_components = [dim_red[0], dim_red[1]]
+        self.dim_red = dim_red
+        self.normalize = normalize
         self.data, self.outcomes = [], []
         self.outcomes = outcomes
         self.classifier = object
@@ -23,8 +34,12 @@ class MelampusClassifier(object):
         if self.scaling:
             pre.standarize_data()
 
-        if self.dim_red:
-            pre.dimensionality_reduction(num_components=self.num_components)
+        if self.dim_red[0]:
+            num_components = self.dim_red[1]
+            pre.dimensionality_reduction(num_components=num_components)
+
+        if self.normalize:
+            pre.normalize_data()
 
         self.data = pre.data
         if self.target_col is not None:

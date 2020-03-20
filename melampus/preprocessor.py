@@ -1,10 +1,6 @@
-from sklearn.feature_selection import VarianceThreshold
+import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, normalize, OrdinalEncoder
-
-import numpy as np
-import pandas as pd
-import csv
 
 
 class Preprocessor(object):
@@ -24,7 +20,7 @@ class Preprocessor(object):
         self.process_data_from_csv()
 
         if target_col is not None:
-            self.identify_outcomes(df)
+            self.identify_outcomes()
 
     def process_data_from_csv(self):
         try:
@@ -37,16 +33,19 @@ class Preprocessor(object):
             print('error in processing csv file {}'.format(e))
             return ''
 
-    def identify_outcomes(self, dataframe = pd.DataFrame):
-        self.outcomes = dataframe[self.target_col]
-        self.data = dataframe.drop(self.target_col, axis=1)
+    def identify_outcomes(self):
+        self.outcomes = self.data[self.target_col].to_frame(self.target_col)
+        self.data = self.data.drop(self.target_col, axis=1)
 
     def standarize_data(self):
         scaler = StandardScaler().fit(self.data)
         self.data = scaler.transform(self.data)
 
-    def normalize_data(self, norm=str):
-        self.data = normalize(self.data, norm=norm)
+    def normalize_data(self):
+        '''
+        normalize data with L2 norm
+        '''
+        self.data = normalize(self.data)
 
     def dimensionality_reduction(self, num_components=int):
         pca = PCA(n_components=num_components)
@@ -54,7 +53,8 @@ class Preprocessor(object):
 
     def encode_categorical_features(self):
         '''
-        transform categorical features to integers.
+        #TODO: on progress
+        transform categorical features to integers [NOT FINISHED].
         e.g. (directly from sklearn): A person could have features ["male", "female"], ["from Europe", "from US", "from Asia"],
         ["uses Firefox", "uses Chrome", "uses Safari", "uses Internet Explorer"]. Such features can be efficiently
         coded as integers, for instance ["male", "from US", "uses Internet Explorer"] could be expressed as [0, 1, 3]
