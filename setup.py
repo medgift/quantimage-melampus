@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="melampus", # Replace with your own username
-    version="0.0.1",
+    version="0.0.2",
     author="Orfeas Aidonopoulos",
     author_email="orfeas.aidonopoulos@hevs.ch",
     description="Melampus: Machine learning package for Imagine infrastracture.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/orfi2017/imagine_ml_infra/",
+    url="https://github.com/orfi2017/quantimage-melampus/",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
