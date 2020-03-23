@@ -2,7 +2,7 @@ from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from back_up.preprocessor import Preprocessor
+from melampus.preprocessor import Preprocessor
 
 '''
 Feature selection based on two methods: variance threshold for large number of features. Recursive Feature
@@ -26,6 +26,11 @@ class FeatureSelector(Preprocessor):
         return sel.fit_transform(self.data)
 
     def drop_correlated_features(self, score: float, metric: str):
+        '''
+        :param score: correlation score
+        :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
+        :return: dataframe
+        '''
         df = self.data
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
@@ -38,7 +43,7 @@ class FeatureSelector(Preprocessor):
         '''
         It should be used only for regression tasks. The target variable must be included into the dataset.
         '''
-        df = self.data
+        df = self.data.join(self.outcomes) # Merge data with target variable into one dataframe
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         # Correlation with output variable
         cor_target = abs(corr_matrix[target_var])
@@ -59,5 +64,5 @@ class FeatureSelector(Preprocessor):
             k = rfecv.n_features_
             return SelectKBest(k=k).fit_transform(self.data)
         except Exception as e:
-            print("EXCEPTION IN MODEL FIT: {}".format(e))
+            print("feature_selector-rfe: EXCEPTION: {}".format(e))
             pass
