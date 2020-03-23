@@ -7,16 +7,18 @@ from melampus.preprocessor import Preprocessor
 
 class MelampusClassifier(object):
     def __init__(self, filename: str, outcomes=[], target_col=None, scaling=False, dim_red=(False, 0), normalize=False):
-        '''
+        """
+        Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
 
-        :param filename:
-        :param outcomes:
-        :param target_col:
-        :param scaling:
-        :param dim_red:
-        :param normalize: Activator and norm.
-                            The norm to use to normalize each non zero sample(values: 'l1' or 'l2'
-        '''
+        :param filename: The name of the csv file that includes the data
+        Optional parameters:
+        :param outcomes:  the outcomes as a separated dataset in list format
+        :param target_col: name of the target variable if included in the csv dataset
+        :param scaling: Standarization of data
+        :param dim_red: For high dimensional datasets. Reduce the amount of features into a new feature space.
+                        dimred[1] = number of dimentions in the new feature space
+        :param normalize: Normalization with L2 data.
+        """
         self.filename = filename
         self.target_col = target_col
         self.scaling = scaling
