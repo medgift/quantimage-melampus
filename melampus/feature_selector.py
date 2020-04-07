@@ -9,6 +9,7 @@ Feature selection based on two methods: variance threshold for large number of f
 Elimination for identifying the optimal number features and select the best ones for classification.
 '''
 
+
 class FeatureSelector(Preprocessor):
 
     def variance_threshold(self, p_val=None):
@@ -17,13 +18,16 @@ class FeatureSelector(Preprocessor):
         :param p_val: p_value for defining the threshold. default value: 0.8
         :return: transormed array of removed correlated features
         '''
-        p = 0.8  # hardcoded for the moment
+        p = 0.8
         if p_val:
             p = p_val
 
         thres = p * (1 - p)
         sel = VarianceThreshold(threshold=thres)
-        return sel.fit_transform(self.data)
+        try:
+            return sel.fit_transform(self.data)
+        except Exception as e:
+            raise Exception("feature_selector-variance_threshold: EXCEPTION: {}".format(e))
 
     def drop_correlated_features(self, score: float, metric: str):
         '''
@@ -43,7 +47,7 @@ class FeatureSelector(Preprocessor):
         '''
         It should be used only for regression tasks. The target variable must be included into the dataset.
         '''
-        df = self.data.join(self.outcomes) # Merge data with target variable into one dataframe
+        df = self.data.join(self.outcomes)  # Merge data with target variable into one dataframe
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         # Correlation with output variable
         cor_target = abs(corr_matrix[target_var])
