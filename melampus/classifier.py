@@ -83,4 +83,5 @@ class MelampusClassifier(object):
         self.calculate_assessment_metrics(predictions)
 
     def calculate_assessment_metrics(self, predictions= int):
+
         pass

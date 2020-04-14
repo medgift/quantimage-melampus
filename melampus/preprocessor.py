@@ -72,7 +72,3 @@ class Preprocessor(object):
     def identify_categorical_features(self):
         '''on going'''
         pass
-
-# pre = Preprocessor(filename='../synthetic_data/output_L0_GTVL.csv')
-# data_tr = pre.standarize_data()
-# x=1
