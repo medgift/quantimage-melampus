@@ -4,11 +4,6 @@ from sklearn.linear_model import LogisticRegression
 import numpy as np
 from melampus.preprocessor import Preprocessor
 
-'''
-Feature selection based on two methods: variance threshold for large number of features. Recursive Feature
-Elimination for identifying the optimal number features and select the best ones for classification.
-'''
-
 
 class FeatureSelector(Preprocessor):
 

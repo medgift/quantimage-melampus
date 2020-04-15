@@ -2,13 +2,15 @@ from sklearn.linear_model import LogisticRegression, Lasso, ElasticNet
 from sklearn.svm import SVC, LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold, cross_validate, cross_val_predict
+from sklearn import metrics
 import numpy as np
 
 from melampus.preprocessor import Preprocessor
 
 
 class MelampusClassifier(object):
-    def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False, dim_red=(False, 0),
+    def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
+                 dim_red=(False, 0),
                  normalize=False):
         """
         Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
@@ -37,12 +39,13 @@ class MelampusClassifier(object):
         self.outcomes = outcomes
         self.algorithm = algorithm_name
         self.classifier = object
-        self.metrics = {}
+        self.metrics = {'accuracy': None, 'precision': None, 'recall': None, 'area_under_curve': None, 'true_pos': None,
+                        'false_pos': None, 'true_neg': None, 'false_neg': None}
         self.preprocess_data()
         self.init_classifier()
 
     def init_classifier(self):
-        self.classifier = LogisticRegression() # default method
+        self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
             self.classifier = LogisticRegression()
         elif self.algorithm == 'lasso_regression':
@@ -72,16 +75,20 @@ class MelampusClassifier(object):
 
     def train(self):
         # TODO: unittest train and test set exist for fitting
-        print('model training ..')
+        from time import time
+        print('classifier training (method: {})..'.format(self.algorithm))
+        t0 = time()
         try:
-            #model = cross_validate(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5), return_estimator=True)
-            self.classifier.fit(self.data, self.outcomes)
             predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
 
         except Exception as e:
             raise Exception('classifier_train - Exception error: {}'.format(str(e)))
+        print('classifier was trained in {} sec'.format(time()-t0))
         self.calculate_assessment_metrics(predictions)
 
-    def calculate_assessment_metrics(self, predictions= int):
-
-        pass
+    def calculate_assessment_metrics(self, predictions=int):
+        self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
+        self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions)
+        self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
+        self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions)
+        self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = metrics.confusion_matrix(self.outcomes, predictions).ravel()

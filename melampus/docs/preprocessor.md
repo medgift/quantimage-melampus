@@ -5,9 +5,12 @@ The name of the target variable can also be given as an optional parameter in ca
 ##Methods
 After the initialization, three function are provided for standarization, normalization and dimensionality reduction of the data:
 - **standarize_data**: standarization of data
+
 - **normalize_data**: normalization of data with L2 norm
-- **dimensionality_reduction**: For high dimensional datasets. It reduces the amount of features into a new feature space. 
-The dimensions of the new space must be declared with the parameter 'num_components'. 
+
+- **dimensionality_reduction**: For high dimensional datasets. It reduces the amount of features into a new feature space. Parameters:
+ 
+    + **num_components**: The dimensions of the new space
 
 You can access the transformed data on **pre.data** (format: numpy array)
 
