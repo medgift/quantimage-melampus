@@ -75,14 +75,9 @@ class MelampusClassifier(object):
             self.outcomes = pre.outcomes
 
     def train(self):
-        # TODO: unittest train and test set exist for fitting
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
-        try:
-            predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
-
-        except Exception as e:
-            raise Exception('classifier_train - Exception error: {}'.format(str(e)))
+        predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
         print('classifier was trained in {} sec'.format(time()-t0))
         self.calculate_assessment_metrics(predictions)
 
