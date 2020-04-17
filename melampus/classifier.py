@@ -1,3 +1,4 @@
+from time import time
 from sklearn.linear_model import LogisticRegression, Lasso, ElasticNet
 from sklearn.svm import SVC, LinearSVC
 from sklearn.ensemble import RandomForestClassifier
@@ -75,7 +76,6 @@ class MelampusClassifier(object):
 
     def train(self):
         # TODO: unittest train and test set exist for fitting
-        from time import time
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
         try:

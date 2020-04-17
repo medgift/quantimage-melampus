@@ -13,9 +13,14 @@ outcomes = [0, 1] * 6
 mel_clf = MelampusClassifier(filename='synthetic_data/output_L0_GTVL.csv', algorithm_name='elastic_net',
                              outcomes=outcomes, normalize=True, scaling=True, dim_red=(True, 5))
 mel_clf.train()
-accuracy = mel_clf.accuracy
-efficacy = mel_clf.efficacy
-
+accuracy =mel_clf.metrics['accuracy']
+precision = mel_clf.metrics['precision']
+area_under_curve = mel_clf.metrics['area_under_curve']
+recall = mel_clf.metrics['recall']
+true_positives = mel_clf.metrics['true_pos']
+true_negatives = mel_clf.metrics['true_neg']
+false_positives = mel_clf.metrics['false_pos']
+false_negatives = mel_clf.metrics['false_neg']
 ```
 
 
