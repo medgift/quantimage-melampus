@@ -1,5 +1,5 @@
 # Melampus documenation
-Welcome! This the documentation for Melampus 0.0.3, the machine learning infrastracture package for [SPHN-Imagine](http://medgift.hevs.ch/wordpress/projects/imagine/) project 
+Welcome! This the documentation for Melampus, the machine learning infrastracture package for [SPHN-Imagine](http://medgift.hevs.ch/wordpress/projects/imagine/) project 
 
 Melampus consists of three modules:
 

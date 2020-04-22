@@ -6,3 +6,4 @@ back_up/
 *.egg-info/
 build/
 melampus/__pycache__/
+site/
