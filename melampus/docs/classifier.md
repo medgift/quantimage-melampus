@@ -9,9 +9,8 @@ e.g.:
 ```
 from melampus.classifier import MelampusClassifier
 
-outcomes = [0, 1] * 6
-mel_clf = MelampusClassifier(filename='synthetic_data/output_L0_GTVL.csv', algorithm_name='elastic_net',
-                             outcomes=outcomes, normalize=True, scaling=True, dim_red=(True, 5))
+mel_clf = MelampusClassifier(filename='synthetic_data/all.csv', algorithm_name='elastic_net',
+                             target_col='label', normalize=True, scaling=True, dim_red=(True, 5))
 mel_clf.train()
 accuracy =mel_clf.metrics['accuracy']
 precision = mel_clf.metrics['precision']
