@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, normalize, OrdinalEncoder
 
 
 class Preprocessor(object):
-    def __init__(self, filename: str, target_col= None):
+    def __init__(self, filename: str, target_col=None):
         '''
         A preprocessor for image datasets.
         * dimensionality reduction
@@ -12,7 +12,7 @@ class Preprocessor(object):
         * Normalization
         * Removal of high correlated features
         ''' ''
-        self.filename = filename
+        self.filename = '../' + filename
         self.target_col = target_col
         self.outcomes = []
         self.ids = pd.Series
@@ -25,17 +25,23 @@ class Preprocessor(object):
     def process_data_from_csv(self):
         try:
             df = pd.read_csv(self.filename)
-            # store patient ID in another list
+        except FileNotFoundError as e:
+            raise FileNotFoundError(e)
+
+        # store patient ID in another list
+        try:
             self.ids = df['PatientID']
-            df = df.drop('PatientID', axis=1) # delete column with Ids
-            self.data = df.dropna(axis=1) # delete columns with nans
-        except Exception as e:
-            print('error in processing csv file {}'.format(e))
-            return ''
+            df = df.drop('PatientID', axis=1)  # delete column with Ids
+            self.data = df.dropna(axis=1)  # delete columns with nans
+        except KeyError as e:
+            raise KeyError('Patient ID column not found {}'.format(e))
 
     def identify_outcomes(self):
-        self.outcomes = self.data[self.target_col].to_frame(self.target_col)
-        self.data = self.data.drop(self.target_col, axis=1)
+        try:
+            self.outcomes = self.data[self.target_col].to_frame(self.target_col)
+            self.data = self.data.drop(self.target_col, axis=1)
+        except Exception as e:
+            raise Exception(e)
 
     def standarize_data(self):
         scaler = StandardScaler().fit(self.data)
@@ -66,8 +72,3 @@ class Preprocessor(object):
     def identify_categorical_features(self):
         '''on going'''
         pass
-
-
-#pre = Preprocessor(filename='../synthetic_data/output_L0_GTVL.csv')
-#data_tr = pre.standarize_data()
-#x=1

@@ -3,3 +3,5 @@ pandas
 numpy
 setuptools
 twine
+mkdocs
+docutils

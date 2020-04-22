@@ -4,4 +4,5 @@ orfeas_tests/
 dist/
 back_up/
 *.egg-info/
+build/
 melampus/__pycache__/
