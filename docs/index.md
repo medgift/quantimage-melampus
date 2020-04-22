@@ -1,6 +1,7 @@
 # Melampus documenation
 Welcome! This the documentation for Melampus, the machine learning infrastracture package for [SPHN-Imagine](http://medgift.hevs.ch/wordpress/projects/imagine/) project 
 
+## Modules
 Melampus consists of three modules:
 
 + [Preprocessor](preprocessor.md)
