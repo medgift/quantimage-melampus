@@ -1,29 +1,20 @@
 # Melampus documenation
-Welcome! This the documentation for Melampus 0.0.3
+Welcome! This the documentation for Melampus 0.0.3, the machine learning infrastracture package for [SPHN-Imagine](http://medgift.hevs.ch/wordpress/projects/imagine/) project 
 
-Guide
------
-
-Indices and tables
-==================
-
-
-For full documentation visit [mkdocs.org](https://mkdocs.org).
+Melampus consists of three modules:
 
 + [Preprocessor](preprocessor.md)
 + [Feature Selector](feature_selector.md)
 + [Classifier](classifier.md)
 
-## Commands
+## Installation
+For **production** mode:
+```
+pip install -i https://test.pypi.org/simple/ quantimage-melampus
+```
+Prerequisites commands for **developers**:
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        classifier.md       # Classifier documentation.
+```
+source venv/bin/activate
+pip install -r requirements.txt
+```
