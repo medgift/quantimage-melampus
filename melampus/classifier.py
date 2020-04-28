@@ -10,6 +10,9 @@ from melampus.preprocessor import Preprocessor
 
 
 class MelampusClassifier(object):
+    r'''
+    Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
+    '''
     def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
                  dim_red=(False, 0),
                  normalize=False):
@@ -47,6 +50,9 @@ class MelampusClassifier(object):
         self.regression_methods = ['lasso_regression', 'elastic_net']
 
     def init_classifier(self):
+        '''
+        Initialize the classifier object calling the coresponding sklearn module for the desired algorithm.
+        '''
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
             self.classifier = LogisticRegression()
