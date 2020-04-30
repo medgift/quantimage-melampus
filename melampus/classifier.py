@@ -11,29 +11,28 @@ from melampus.preprocessor import Preprocessor
 
 class MelampusClassifier(object):
     r'''
-    Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
+    This is a machine learning classifier for datasets from medical images.
+    The initialization of the melampus classifier object contains two required input parameters and some optional
+    parameters inherited from [MelampusPreprocessor](preprocessor.md) object.
+
+    :param filename: The name of the csv file that includes the data
+    :param algorithm_name: The name of the desired method. Possible values:
+        - logistic_regression: For Logistic Regression
+        - lasso_regression: For logistic regression with the l1 penalty
+        - elastic_net: For logistic regression with the elastic net penalty
+        - random_forest: For Random Forest classifier, an embedded method of decision trees
+        - svm: For a Support Vector Machine classifier.
+    Optional parameters:
+    :param outcomes:  the outcomes as a separated dataset in list format
+    :param target_col: name of the target variable if included in the csv dataset
+    :param scaling: Standarization of data
+    :param dim_red: For high dimensional datasets. Reduce the amount of features into a new feature space.
+                    dimred[1] = number of dimentions in the new feature space
+    :param normalize: Normalization with L2 data.
     '''
     def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
                  dim_red=(False, 0),
                  normalize=False):
-        """
-        Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
-
-        :param filename: The name of the csv file that includes the data
-        :param algorithm_name: The name of the desired method. Possible values:
-            - logistic_regression: For Logistic Regression
-            - lasso_regression: For logistic regression with the l1 penalty
-            - elastic_net: For logistic regression with the elastic net penalty
-            - random_forest: For Random Forest classifier, an embedded method of decision trees
-            - svm: For a Support Vector Machine classifier.
-        Optional parameters:
-        :param outcomes:  the outcomes as a separated dataset in list format
-        :param target_col: name of the target variable if included in the csv dataset
-        :param scaling: Standarization of data
-        :param dim_red: For high dimensional datasets. Reduce the amount of features into a new feature space.
-                        dimred[1] = number of dimentions in the new feature space
-        :param normalize: Normalization with L2 data.
-        """
         self.filename = filename
         self.target_col = target_col
         self.scaling = scaling
@@ -51,7 +50,7 @@ class MelampusClassifier(object):
 
     def init_classifier(self):
         '''
-        Initialize the classifier object calling the coresponding sklearn module for the desired algorithm.
+        Initialize the classifier object calling the corresponding sklearn module for the desired algorithm.
         '''
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
