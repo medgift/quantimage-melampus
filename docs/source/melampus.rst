@@ -27,12 +27,3 @@ The ``MelampusPreprocessor`` class
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: melampus
-   :members:
-   :undoc-members:
-   :show-inheritance:
