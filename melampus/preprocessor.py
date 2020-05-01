@@ -3,7 +3,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, normalize, OrdinalEncoder
 
 
-class Preprocessor(object):
+class MelampusPreprocessor(object):
     def __init__(self, filename: str, target_col=None):
         '''
         A preprocessor for image datasets.

@@ -2,10 +2,10 @@ from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from melampus.preprocessor import Preprocessor
+from melampus.preprocessor import MelampusPreprocessor
 
 
-class FeatureSelector(Preprocessor):
+class MelampusFeatureSelector(MelampusPreprocessor):
 
     def variance_threshold(self, p_val=None):
         '''

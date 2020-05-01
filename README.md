@@ -9,13 +9,15 @@ Melampus consists of three modules:
 3. Feature selector (updated)
 
 ## Installation
-For **production** mode:
+Production mode:
 ```
 pip install -i https://test.pypi.org/simple/ quantimage-melampus
 ```
-Prerequisites commands for **developers**:
+
+Install from source :
 
 ```
 source venv/bin/activate
 pip install -r requirements.txt
+python3 setup.py
 ```

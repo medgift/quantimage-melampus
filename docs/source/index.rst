@@ -10,6 +10,11 @@ Welcome to melampus's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   intro
+   modules
+   melampus
+   install
+   examples
 
 
 Indices and tables

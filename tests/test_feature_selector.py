@@ -1,5 +1,5 @@
 import unittest
-from melampus.feature_selector import FeatureSelector
+from melampus.feature_selector import MelampusFeatureSelector
 
 
 class TestFeatureSelector(unittest.TestCase):

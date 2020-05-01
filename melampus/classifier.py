@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.svm import SVC
 
-from melampus.preprocessor import Preprocessor
+from melampus.preprocessor import MelampusPreprocessor
 
 
 class MelampusClassifier(object):
@@ -72,7 +72,7 @@ class MelampusClassifier(object):
             self.classifier = SVC()
 
     def preprocess_data(self):
-        pre = Preprocessor(filename=self.filename, target_col=self.target_col)
+        pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col)
         if self.scaling:
             pre.standarize_data()
 
