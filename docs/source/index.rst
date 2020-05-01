@@ -10,12 +10,12 @@ Welcome to melampus's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   intro.rst
-   modules.rst
-   melampus.rst
-   install.rst
-   examples.rst
-
+   intro
+   modules
+   melampus
+   install
+   examples
+   contents
 
 Indices and tables
 ==================
