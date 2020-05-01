@@ -13,22 +13,28 @@ class MelampusClassifier(object):
     r'''
     This is a machine learning classifier for datasets from medical images.
     The initialization of the melampus classifier object contains two required input parameters and some optional
-    parameters inherited from [MelampusPreprocessor](preprocessor.md) object.
+    parameters inherited from [MelampusPreprocessor](preprocessor.md) object: :class:`melampus.preprocessor.MelampusPreprocessor`.
 
     :param filename: The name of the csv file that includes the data
+    :type filename: str, required
     :param algorithm_name: The name of the desired method. Possible values:
         - logistic_regression: For Logistic Regression
         - lasso_regression: For logistic regression with the l1 penalty
         - elastic_net: For logistic regression with the elastic net penalty
         - random_forest: For Random Forest classifier, an embedded method of decision trees
         - svm: For a Support Vector Machine classifier.
-    Optional parameters:
-    :param outcomes:  the outcomes as a separated dataset in list format
-    :param target_col: name of the target variable if included in the csv dataset
-    :param scaling: Standarization of data
+    :type algorithm_name: str, required
+    :param outcomes:  the outcomes as a separated entry (e.g.: [0,1,1,1,1,0...,1]), defaults to []
+    :type outcomes:  list, optional
+    :param target_col: name of the target variable if included in the csv dataset, defaults to None
+    :type target_col: str, opional
+    :param scaling: Standarization of data, defaults to False
+    :type scaling: bool, optional
     :param dim_red: For high dimensional datasets. Reduce the amount of features into a new feature space.
-                    dimred[1] = number of dimentions in the new feature space
-    :param normalize: Normalization with L2 data.
+                    dimred[1] = number of dimentions in the new feature space. defaults to (False, 0)
+    :type dim_red: tuple, optional
+    :param normalize: Normalization of data with L2 norm.
+    :type normalize: bool, optional, defaults to False
     '''
     def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
                  dim_red=(False, 0),
@@ -50,7 +56,8 @@ class MelampusClassifier(object):
 
     def init_classifier(self):
         '''
-        Initialize the classifier object calling the corresponding sklearn module for the desired algorithm.
+        Initializes the classifier object calling the corresponding sklearn module for the desired algorithm. E.g.:
+        ``algorithm='random_forest'`` a Random Forest classifier from scikit-learn will be trained.
         '''
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
