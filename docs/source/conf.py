@@ -14,7 +14,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../../melampus/'))
 
-
 # -- Project information -----------------------------------------------------
 
 project = 'melampus'
