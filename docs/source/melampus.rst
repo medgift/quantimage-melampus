@@ -7,7 +7,7 @@ Modules
 The ``MelampusClassifier`` class
 --------------------------------------
 
-.. autoclass:: melampus.MelampusClassifier
+.. autoclass:: MelampusClassifier
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ The ``MelampusClassifier`` class
 The ``MelampusFeatureSelector`` class
 --------------------------------------
 
-.. autoclass:: melampus.MelampusFeatureSelector
+.. autoclass:: MelampusFeatureSelector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ The ``MelampusFeatureSelector`` class
 The ``MelampusPreprocessor`` class
 --------------------------------------
 
-.. autoclass:: melampus.MelampusPreprocessor
+.. autoclass:: MelampusPreprocessor
    :members:
    :undoc-members:
    :show-inheritance:
