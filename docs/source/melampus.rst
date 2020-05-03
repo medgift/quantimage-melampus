@@ -1,17 +1,6 @@
-melampus module
-===============
-
-.. automodule:: melampus
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 Documentation
 ================
-
-Modules
-----------
 
 The ``MelampusClassifier`` class
 --------------------------------------
@@ -36,7 +25,3 @@ The ``MelampusPreprocessor`` class
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-
-
