@@ -1,4 +1,13 @@
-Melampus machine learning package
+melampus module
+===============
+
+.. automodule:: melampus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Documentation
 ================
 
 Modules
@@ -28,9 +37,6 @@ The ``MelampusPreprocessor`` class
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: melampus
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
 
 

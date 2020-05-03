@@ -6,3 +6,4 @@ twine
 mkdocs
 docutils
 sphinx
+sphinx_rtd_theme
