@@ -11,7 +11,6 @@ Welcome to melampus's documentation!
    :caption: Contents:
 
    intro
-   modules
    melampus
    install
    examples
