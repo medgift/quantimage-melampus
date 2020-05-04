@@ -10,7 +10,7 @@ from melampus.preprocessor import MelampusPreprocessor
 
 
 class MelampusClassifier(object):
-    r'''
+    '''
     This is a machine learning classifier for datasets from medical images.
     The initialization of the melampus classifier object contains two required input parameters and some optional
     parameters inherited from [MelampusPreprocessor](preprocessor.md) object: :class:`melampus.preprocessor.MelampusPreprocessor`.
