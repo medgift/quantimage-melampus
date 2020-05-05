@@ -88,5 +88,3 @@ texinfo_documents = [
      author, 'melampus', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-autodoc_mock_imports = ["melampus"]
