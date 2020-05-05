@@ -9,7 +9,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
 
     def variance_threshold(self, p_val=None):
         '''
-         It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
+        It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
         :param p_val: p_value for defining the threshold. default value: 0.8
         :return: transormed array of removed correlated features
         '''
