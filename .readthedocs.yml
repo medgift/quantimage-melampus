@@ -24,3 +24,6 @@ python:
   setup_py_install: true
   install:
     - requirements: requirements.txt
+    - method: pip
+      path: .
+  system_packages: true
