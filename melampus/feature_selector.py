@@ -55,7 +55,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
 
         :param score: correlation score
         :type score: float, required
-        :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
+        :param metric: {‘pearson’, ‘kendall’, ‘spearman’}
         :type metric: str, required
         :param target_var: name of the target variable included in the csv dataset
         :type target_var: str, required
