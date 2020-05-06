@@ -2,17 +2,21 @@ from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from melampus.preprocessor import Preprocessor
+from melampus.preprocessor import MelampusPreprocessor
 
 
-class FeatureSelector(Preprocessor):
-
+class MelampusFeatureSelector(MelampusPreprocessor):
+    '''
+    Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
+    It inherits the inputs of :class:`melampus.preprocessor.MelampusPreprocessor`
+    '''
     def variance_threshold(self, p_val=None):
         '''
-         It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
+        It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
         :param p_val: p_value for defining the threshold. default value: 0.8
         :return: transormed array of removed correlated features
         '''
+
         p = 0.8
         if p_val:
             p = p_val
@@ -26,10 +30,14 @@ class FeatureSelector(Preprocessor):
 
     def drop_correlated_features(self, score: float, metric: str):
         '''
+        Herein this method deletes all the high correlated features based on the provided correlation score and a specific metric.
         :param score: correlation score
+        :type score: float, required
         :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
-        :return: dataframe
+        :type metric: str, required
+        :return: pandas dataframe
         '''
+
         df = self.data
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
@@ -40,8 +48,17 @@ class FeatureSelector(Preprocessor):
 
     def identify_correlated_features_with_target_variable(self, score: float, metric: str, target_var: str):
         '''
-        It should be used only for regression tasks. The target variable must be included into the dataset.
+        With this method we identify all features that are high correlated with the outcome variable.
+        It should be used only for regression tasks. The target variable **must be included into the dataset**.
+        :param score: correlation score
+        :type score: float, required
+        :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
+        :type metric: str, required
+        :param target_var: name of the target variable included in the csv dataset
+        :type target_var: str, required
+        :return: The names of the relevant correlated features
         '''
+
         df = self.data.join(self.outcomes)  # Merge data with target variable into one dataframe
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         # Correlation with output variable
@@ -52,10 +69,16 @@ class FeatureSelector(Preprocessor):
 
     def rfe(self):
         '''
-        Select the features that contribute most to the target variable.
-        Slow method. It should be used for small number of features (less than 20)
-        :return: the selected features
+        Recursive feature elimination for selecting the features that contribute most to the target variable (most significant features).
+        Specifically: A Logistic Regression estimator is trained on the initial set of features and the importance of each feature is
+        obtained. the least important features are pruned from current set of features.
+        That procedure is recursively repeated on the pruned set until the desired number of features to select is
+        eventually reached.
+
+        **This is a slow method. It should be used for small number of features (less than 20)**
+        :return: the dataset with the final selected features
         '''
+
         logreg = LogisticRegression()
         rfecv = RFECV(estimator=logreg, cv=StratifiedKFold(), scoring='accuracy', n_jobs=-1)
         try:

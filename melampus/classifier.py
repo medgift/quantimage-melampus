@@ -6,31 +6,39 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.svm import SVC
 
-from melampus.preprocessor import Preprocessor
+from melampus.preprocessor import MelampusPreprocessor
 
 
 class MelampusClassifier(object):
+    '''
+    This is a machine learning classifier for datasets from medical images.
+    The initialization of the melampus classifier object contains two required input parameters and some optional
+    parameters inherited from :class:`melampus.preprocessor.MelampusPreprocessor`.
+
+    :param filename: The name of the csv file that includes the data
+    :type filename: str, required
+    :param algorithm_name: The name of the desired method. Possible values:
+        - logistic_regression: For Logistic Regression
+        - lasso_regression: For logistic regression with the l1 penalty
+        - elastic_net: For logistic regression with the elastic net penalty
+        - random_forest: For Random Forest classifier, an embedded method of decision trees
+        - svm: For a Support Vector Machine classifier.
+    :type algorithm_name: str, required
+    :param outcomes:  the outcomes as a separated entry (e.g.: [0,1,1,1,1,0...,1]), defaults to []
+    :type outcomes:  list, optional
+    :param target_col: name of the target variable if included in the csv dataset, defaults to None
+    :type target_col: str, opional
+    :param scaling: Standarization of data, defaults to False
+    :type scaling: bool, optional
+    :param dim_red: For high dimensional datasets. Reduce the amount of features into a new feature space.
+                    dimred[1] = number of dimentions in the new feature space. defaults to (False, 0)
+    :type dim_red: tuple, optional
+    :param normalize: Normalization of data with L2 norm.
+    :type normalize: bool, optional, defaults to False
+    '''
     def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
                  dim_red=(False, 0),
                  normalize=False):
-        """
-        Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
-
-        :param filename: The name of the csv file that includes the data
-        :param algorithm_name: The name of the desired method. Possible values:
-            - logistic_regression: For Logistic Regression
-            - lasso_regression: For logistic regression with the l1 penalty
-            - elastic_net: For logistic regression with the elastic net penalty
-            - random_forest: For Random Forest classifier, an embedded method of decision trees
-            - svm: For a Support Vector Machine classifier.
-        Optional parameters:
-        :param outcomes:  the outcomes as a separated dataset in list format
-        :param target_col: name of the target variable if included in the csv dataset
-        :param scaling: Standarization of data
-        :param dim_red: For high dimensional datasets. Reduce the amount of features into a new feature space.
-                        dimred[1] = number of dimentions in the new feature space
-        :param normalize: Normalization with L2 data.
-        """
         self.filename = filename
         self.target_col = target_col
         self.scaling = scaling
@@ -47,6 +55,10 @@ class MelampusClassifier(object):
         self.regression_methods = ['lasso_regression', 'elastic_net']
 
     def init_classifier(self):
+        '''
+        Initializes the classifier object calling the corresponding sklearn module for the desired algorithm. E.g.:
+        ``algorithm='random_forest'`` a Random Forest classifier from scikit-learn library will be trained.
+        '''
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
             self.classifier = LogisticRegression()
@@ -60,7 +72,10 @@ class MelampusClassifier(object):
             self.classifier = SVC()
 
     def preprocess_data(self):
-        pre = Preprocessor(filename=self.filename, target_col=self.target_col)
+        '''
+        Preprocessing of the data using :class:`melampus.preprocessor.MelampusPreprocessor`.
+        '''
+        pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col)
         if self.scaling:
             pre.standarize_data()
 
@@ -76,13 +91,25 @@ class MelampusClassifier(object):
             self.outcomes = pre.outcomes
 
     def train(self):
+        '''
+        Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
+        trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
+        For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
+        '''
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
         predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
         print('classifier was trained in {} sec'.format(time() - t0))
         self.calculate_assessment_metrics(predictions)
 
-    def calculate_assessment_metrics(self, predictions=int):
+    def calculate_assessment_metrics(self, predictions: list):
+        '''
+        Calculation of assessment metrics using the corresponding scikit-learn modules. The predictions on which the model
+        is being assessed are calculated on the test samples derived by each of the cross-validation iterations.
+        :param predictions: A list with classifier predictions on the test samples
+        :type predictions: list, required
+        The results are stored in self.metrics object (dictionary).
+        '''
         self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
         self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
         self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions)
