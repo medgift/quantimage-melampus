@@ -106,6 +106,7 @@ class MelampusClassifier(object):
         '''
         Calculation of assessment metrics using the corresponding scikit-learn modules. The predictions on which the model
         is being assessed are calculated on the test samples derived by each of the cross-validation iterations.
+
         :param predictions: A list with classifier predictions on the test samples
         :type predictions: list, required
         The results are stored in self.metrics object (dictionary).

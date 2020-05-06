@@ -32,6 +32,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
     def drop_correlated_features(self, score: float, metric: str):
         '''
         Herein this method deletes all the high correlated features based on the provided correlation score and a specific metric.
+
         :param score: correlation score
         :type score: float, required
         :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
@@ -51,6 +52,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         '''
         With this method we identify all features that are high correlated with the outcome variable.
         It should be used only for regression tasks. The target variable **must be included into the dataset**.
+
         :param score: correlation score
         :type score: float, required
         :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
@@ -77,6 +79,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         eventually reached.
 
         **This is a slow method. It should be used for small number of features (less than 20)**
+
         :return: the dataset with the final selected features
         '''
 

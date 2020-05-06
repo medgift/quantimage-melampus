@@ -31,6 +31,7 @@ class MelampusPreprocessor(object):
         '''
         Herein, the data are extracted from the csvfile and are transformed into a pandas DataFrame. The dataframe is stored
         into the self.data object.
+
         :raise Exception: If the path of csvfile is not valid or not found.
         :raise KeyError: If 'PatientID' column is not provided
         '''
@@ -71,6 +72,7 @@ class MelampusPreprocessor(object):
     def dimensionality_reduction(self, num_components: int):
         '''
         Reduce the amount of features into a new feature space using Principal Component Analysis.
+
         :param num_components: number of dimentions in the new feature space
         :type num_components: int, required
         '''
