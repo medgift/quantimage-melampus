@@ -14,7 +14,6 @@ Welcome to melampus's documentation!
    melampus
    install
    examples
-   modules
 
 Indices and tables
 ==================
