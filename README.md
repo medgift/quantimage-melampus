@@ -4,9 +4,12 @@
 This is the ML package for Imagine project called **"Melampus"**. 
 
 Melampus consists of three modules:
-1. Classifier: Logistic Regression for image data
+1. Classifier
 2. Data preprocessor 
-3. Feature selector (updated)
+3. Feature selector
+
+See the detailed documentation here: https://imagine-melampus.readthedocs.io/en/latest/
+
 
 ## Installation
 Production mode:
