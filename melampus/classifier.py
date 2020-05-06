@@ -13,7 +13,7 @@ class MelampusClassifier(object):
     '''
     This is a machine learning classifier for datasets from medical images.
     The initialization of the melampus classifier object contains two required input parameters and some optional
-    parameters inherited from [MelampusPreprocessor](preprocessor.md) object: :class:`melampus.preprocessor.MelampusPreprocessor`.
+    parameters inherited from :class:`melampus.preprocessor.MelampusPreprocessor`.
 
     :param filename: The name of the csv file that includes the data
     :type filename: str, required
@@ -57,7 +57,7 @@ class MelampusClassifier(object):
     def init_classifier(self):
         '''
         Initializes the classifier object calling the corresponding sklearn module for the desired algorithm. E.g.:
-        ``algorithm='random_forest'`` a Random Forest classifier from scikit-learn will be trained.
+        ``algorithm='random_forest'`` a Random Forest classifier from scikit-learn library will be trained.
         '''
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
@@ -72,6 +72,9 @@ class MelampusClassifier(object):
             self.classifier = SVC()
 
     def preprocess_data(self):
+        '''
+        Preprocessing of the data using :class:`melampus.preprocessor.MelampusPreprocessor`.
+        '''
         pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col)
         if self.scaling:
             pre.standarize_data()
@@ -88,13 +91,25 @@ class MelampusClassifier(object):
             self.outcomes = pre.outcomes
 
     def train(self):
+        '''
+        Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
+        trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
+        For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
+        '''
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
         predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
         print('classifier was trained in {} sec'.format(time() - t0))
         self.calculate_assessment_metrics(predictions)
 
-    def calculate_assessment_metrics(self, predictions=int):
+    def calculate_assessment_metrics(self, predictions: list):
+        '''
+        Calculation of assessment metrics using the corresponding scikit-learn modules. The predictions on which the model
+        is being assessed are calculated on the test samples derived by each of the cross-validation iterations.
+        :param predictions: A list with classifier predictions on the test samples
+        :type predictions: list, required
+        The results are stored in self.metrics object (dictionary).
+        '''
         self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
         self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
         self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions)
