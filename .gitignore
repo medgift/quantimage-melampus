@@ -8,3 +8,4 @@ build/
 melampus/__pycache__/
 site/
 docs/build/*
+INSTALL.md
