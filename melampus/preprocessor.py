@@ -20,7 +20,6 @@ class MelampusPreprocessor(object):
         self.filename = '../' + filename
         self.target_col = target_col
         self.outcomes = []
-        self.ids = pd.Series
         self.data = pd.DataFrame
         self.process_data_from_csv()
 
@@ -33,7 +32,6 @@ class MelampusPreprocessor(object):
         into the self.data object.
 
         :raise Exception: If the path of csvfile is not valid or not found.
-        :raise KeyError: If 'PatientID' column is not provided
         '''
         try:
             df = pd.read_csv(self.filename)
@@ -43,10 +41,9 @@ class MelampusPreprocessor(object):
         # store patient ID in another list
         try:
             self.ids = df['PatientID']
-            df = df.drop('PatientID', axis=1)  # delete column with Ids
-            self.data = df.dropna(axis=1)  # delete columns with nans
-        except KeyError as e:
-            raise KeyError('Patient ID column not found {}'.format(e))
+            self.data = df.drop('PatientID', axis=1)  # delete column with Ids
+        except KeyError:
+            pass
 
     def identify_outcomes(self):
         '''
