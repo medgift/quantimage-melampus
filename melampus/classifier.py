@@ -9,7 +9,7 @@ from sklearn.svm import SVC
 from melampus.preprocessor import MelampusPreprocessor
 
 
-class MelampusClassifier(object):
+class MelampusClassifier:
     '''
     This is a machine learning classifier for datasets from medical images.
     The initialization of the melampus classifier object contains two required input parameters and some optional
