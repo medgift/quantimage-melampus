@@ -31,6 +31,9 @@ class MelampusSurvivalAnalyzer:
         self.init_survival_classifier()
 
     def init_columns(self):
+        """
+        Initialization of time and event columns
+        """
         try:
             self.T = self.data[self.time_column]
             self.E = self.data[self.event_column]
