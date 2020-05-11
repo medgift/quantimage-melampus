@@ -24,3 +24,11 @@ The ``MelampusPreprocessor`` class
    :members:
    :undoc-members:
    :show-inheritance:
+
+The ``MelampusSurvivalAnalyzer`` class
+--------------------------------------
+
+.. automodule:: melampus.survival_analysis
+   :members:
+   :undoc-members:
+   :show-inheritance:

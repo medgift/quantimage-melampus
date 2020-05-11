@@ -8,5 +8,6 @@ medical images. The current version consists of three modules:
 + Preprocessor
 + Feature Selector
 + Classifier
++ Survival Analysis
 
 You can find detailed explanation of each module at the Documentation section.
