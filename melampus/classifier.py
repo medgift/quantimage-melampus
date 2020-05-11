@@ -10,7 +10,7 @@ from melampus.preprocessor import MelampusPreprocessor
 
 
 class MelampusClassifier:
-    '''
+    """
     This is a machine learning classifier for datasets from medical images.
     The initialization of the melampus classifier object contains two required input parameters and some optional
     parameters inherited from :class:`melampus.preprocessor.MelampusPreprocessor`.
@@ -35,7 +35,7 @@ class MelampusClassifier:
     :type dim_red: tuple, optional
     :param normalize: Normalization of data with L2 norm.
     :type normalize: bool, optional, defaults to False
-    '''
+    """
     def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
                  dim_red=(False, 0),
                  normalize=False):
@@ -55,10 +55,10 @@ class MelampusClassifier:
         self.regression_methods = ['lasso_regression', 'elastic_net']
 
     def init_classifier(self):
-        '''
+        """
         Initializes the classifier object calling the corresponding sklearn module for the desired algorithm. E.g.:
         ``algorithm='random_forest'`` a Random Forest classifier from scikit-learn library will be trained.
-        '''
+        """
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
             self.classifier = LogisticRegression()
@@ -72,9 +72,9 @@ class MelampusClassifier:
             self.classifier = SVC()
 
     def preprocess_data(self):
-        '''
+        """
         Preprocessing of the data using :class:`melampus.preprocessor.MelampusPreprocessor`.
-        '''
+        """
         pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col)
         if self.scaling:
             pre.standarize_data()
@@ -91,11 +91,11 @@ class MelampusClassifier:
             self.outcomes = pre.outcomes
 
     def train(self):
-        '''
+        """
         Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
         For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
-        '''
+        """
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
         predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
@@ -103,14 +103,14 @@ class MelampusClassifier:
         self.calculate_assessment_metrics(predictions)
 
     def calculate_assessment_metrics(self, predictions: list):
-        '''
+        """
         Calculation of assessment metrics using the corresponding scikit-learn modules. The predictions on which the model
         is being assessed are calculated on the test samples derived by each of the cross-validation iterations.
 
         :param predictions: A list with classifier predictions on the test samples
         :type predictions: list, required
         The results are stored in self.metrics object (dictionary).
-        '''
+        """
         self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
         self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
         self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions)

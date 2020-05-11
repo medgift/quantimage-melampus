@@ -6,17 +6,17 @@ from melampus.preprocessor import MelampusPreprocessor
 
 
 class MelampusFeatureSelector(MelampusPreprocessor):
-    '''
+    """
     Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
     It inherits the inputs of :class:`melampus.preprocessor.MelampusPreprocessor`
-    '''
+    """
     def variance_threshold(self, p_val=None):
-        '''
+        """
         It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
 
         :param p_val: p_value for defining the threshold. default value: 0.8
         :return: transormed array of removed correlated features
-        '''
+        """
 
         p = 0.8
         if p_val:
@@ -30,7 +30,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
             raise Exception("feature_selector-variance_threshold: EXCEPTION: {}".format(e))
 
     def drop_correlated_features(self, score: float, metric: str):
-        '''
+        """
         Herein this method deletes all the high correlated features based on the provided correlation score and a specific metric.
 
         :param score: correlation score
@@ -38,7 +38,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
         :type metric: str, required
         :return: pandas dataframe
-        '''
+        """
 
         df = self.data
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
@@ -49,7 +49,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         return df
 
     def identify_correlated_features_with_target_variable(self, score: float, metric: str, target_var: str):
-        '''
+        """
         With this method we identify all features that are high correlated with the outcome variable.
         It should be used only for regression tasks. The target variable **must be included into the dataset**.
 
@@ -60,7 +60,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         :param target_var: name of the target variable included in the csv dataset
         :type target_var: str, required
         :return: The names of the relevant correlated features
-        '''
+        """
 
         df = self.data.join(self.outcomes)  # Merge data with target variable into one dataframe
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
@@ -71,7 +71,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         return relevant_feats
 
     def rfe(self):
-        '''
+        """
         Recursive feature elimination for selecting the features that contribute most to the target variable (most significant features).
         Specifically: A Logistic Regression estimator is trained on the initial set of features and the importance of each feature is
         obtained. the least important features are pruned from current set of features.
@@ -81,7 +81,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         **This is a slow method. It should be used for small number of features (less than 20)**
 
         :return: the dataset with the final selected features
-        '''
+        """
 
         logreg = LogisticRegression()
         rfecv = RFECV(estimator=logreg, cv=StratifiedKFold(), scoring='accuracy', n_jobs=-1)

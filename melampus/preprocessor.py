@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, normalize, OrdinalEncoder
 
 
 class MelampusPreprocessor(object):
-    '''
+    """
     This is the preprocessor class for melampus platform. It process data in order to be standarized and normalized.
     It also provides the method for dimensionaliry reduction and the removal of high correlated features.
     Melampus Preprocessor accepts a csv file with the **column names must be included**. Also, the dataset must contain a separate column named exactly **'PatientID'** with the samples ids.
@@ -15,7 +15,7 @@ class MelampusPreprocessor(object):
     :type target_col: str, opional
 
     The transformed datasets are stored and can be accessed on pre.data object in numpy array format
-    '''
+    """
     def __init__(self, filename: str, target_col=None):
         self.filename = '../' + filename
         self.target_col = target_col
@@ -27,12 +27,12 @@ class MelampusPreprocessor(object):
             self.identify_outcomes()
 
     def process_data_from_csv(self):
-        '''
+        """
         Herein, the data are extracted from the csvfile and are transformed into a pandas DataFrame. The dataframe is stored
         into the self.data object.
 
         :raise Exception: If the path of csvfile is not valid or not found.
-        '''
+        """
         try:
             df = pd.read_csv(self.filename)
         except FileNotFoundError as e:
@@ -46,10 +46,10 @@ class MelampusPreprocessor(object):
             pass
 
     def identify_outcomes(self):
-        '''
+        """
         Herein, the outcomes are extracted from a column in the csvfile. This method is called only if ``target_col``
         parameter is provided which is the column with the outcomes in the csv file.
-        '''
+        """
         self.outcomes = self.data[self.target_col].to_frame(self.target_col)
         self.data = self.data.drop(self.target_col, axis=1)
 
