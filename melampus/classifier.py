@@ -56,8 +56,8 @@ class MelampusClassifier:
 
     def init_classifier(self):
         """
-        Initializes the classifier object calling the corresponding sklearn module for the desired algorithm. E.g.:
-        ``algorithm='random_forest'`` a Random Forest classifier from scikit-learn library will be trained.
+        Initializes the ``self.classifier`` object calling the corresponding sklearn module for the desired algorithm. E.g.:
+        ``algorithm='random_forest'`` a Random Forest classifier from ``scikit-learn`` library will be trained.
         """
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
