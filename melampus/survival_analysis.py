@@ -7,13 +7,16 @@ class MelampusSurvivalAnalyzer:
     MelampusSurvivalAnalyzer is used for two kinds of survival analysis:  and regression. For
 
     - 1. Analysis for univariate models using **Kaplan-Meier** or **Nelson-Aalen** approach
-
     - 2. Survival regression using **Cox's model**
 
-        :param data:
-        :param time_column:
-        :param event_column:
-        :param method:
+        :param data: Dataset for survival analysis
+        :type data: pandas.DataFrame, required
+        :param time_column: The column name of the duration variable
+        :type time_column: str, required
+        :param event_column: The column name of the observed event variable
+        :type event_column: str, required
+        :param method: The name of the desired method. Options: {'kaplan_meier','nelson_aalen','cox_model'}.
+        Default value: 'cox_model'
 
     """
 
@@ -37,6 +40,10 @@ class MelampusSurvivalAnalyzer:
             raise KeyError('column name is not valid')
 
     def init_survival_classifier(self):
+        """
+        Initializes the ``self.analyzer`` object calling the corresponding ``lifelines`` module for the desired algorithm. E.g.:
+        ``method='kaplan_meier'`` the Kaplan-Meier estimator from ``lifelines`` library will be initialized.
+        """
         if self.method == 'kaplan_meier':
             self.analyzer = KaplanMeierFitter()
         elif self.method == 'nelson_aalen':
@@ -47,6 +54,10 @@ class MelampusSurvivalAnalyzer:
             self.analyzer = CoxPHFitter()
 
     def train(self):
+        """
+        Train the model based on desired algorithm.
+        :return: The concordance index
+        """
         if self.method == 'cox_model':
             try:
                 self.analyzer.fit(self.data, duration_col=self.time_column, event_col=self.event_column)
