@@ -32,7 +32,10 @@ class MelampusSurvivalAnalyzer:
 
     def init_columns(self):
         """
-        Initialization of time and event columns
+        Initialization of time and event columns. Each column must be saved into pandas.Series variables for the cases of
+        Kaplan-Meier and Nelson Aalen estimators
+
+        :raise KeyError: If the column names do not exist in the dataset.
         """
         try:
             self.T = self.data[self.time_column]
