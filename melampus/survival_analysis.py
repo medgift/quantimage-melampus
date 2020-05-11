@@ -9,15 +9,13 @@ class MelampusSurvivalAnalyzer:
     - 1. Analysis for univariate models using **Kaplan-Meier** or **Nelson-Aalen** approach
     - 2. Survival regression using **Cox's model**
 
-        :param data: Dataset for survival analysis
-        :type data: pandas.DataFrame, required
-        :param time_column: The column name of the duration variable
-        :type time_column: str, required
-        :param event_column: The column name of the observed event variable
-        :type event_column: str, required
-        :param method: The name of the desired method. Options: {'kaplan_meier','nelson_aalen','cox_model'}.
-        Default value: 'cox_model'
-
+    :param data: Dataset for survival analysis
+    :type data: pandas.DataFrame, required
+    :param time_column: The column name of the duration variable
+    :type time_column: str, required
+    :param event_column: The column name of the observed event variable
+    :type event_column: str, required
+    :param method: The name of the desired method. Options: {'kaplan_meier','nelson_aalen','cox_model'}. Default value: 'cox_model'
     """
 
     def __init__(self, data: pd.DataFrame, time_column: str, event_column: str, method='cox_model'):
