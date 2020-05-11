@@ -3,6 +3,20 @@ from lifelines import KaplanMeierFitter, NelsonAalenFitter, CoxPHFitter
 
 
 class MelampusSurvivalAnalyzer:
+    """
+    MelampusSurvivalAnalyzer is used for two kinds of survival analysis:  and regression. For
+
+    - 1. Analysis for univariate models using **Kaplan-Meier** or **Nelson-Aalen** approach
+
+    - 2. Survival regression using **Cox's model**
+
+        :param data:
+        :param time_column:
+        :param event_column:
+        :param method:
+
+    """
+
     def __init__(self, data: pd.DataFrame, time_column: str, event_column: str, method='cox_model'):
         self.data = data
         self.time_column = time_column
@@ -35,7 +49,7 @@ class MelampusSurvivalAnalyzer:
     def train(self):
         if self.method == 'cox_model':
             try:
-                self.analyzer.fit(self.data, duration_col = self.time_column, event_col= self.event_column)
+                self.analyzer.fit(self.data, duration_col=self.time_column, event_col=self.event_column)
             except Exception as e:
                 raise Exception(str(e))
         else:
@@ -44,5 +58,4 @@ class MelampusSurvivalAnalyzer:
             except Exception as e:
                 raise Exception(str(e))
 
-    def assess(self):
         return self.analyzer.concordance_index_
