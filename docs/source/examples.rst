@@ -26,6 +26,7 @@ Preprocessor
 Classifier
 *******************
 .. code-block:: python
+
     """
     Melampus Classifier for logistic regression. Includes all the preprocessor steps as options
             :param filename: The name of the csv file that includes the data
@@ -60,6 +61,7 @@ Classifier
 Feature Selector
 *******************
 .. code-block:: python
+
     """
     Melampus Feature Selector accepts a csv file with column names. And (optionally) the name of target variable included in the csv file.
     Functions:
