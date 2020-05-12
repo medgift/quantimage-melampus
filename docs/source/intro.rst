@@ -1,7 +1,7 @@
 Introduction
 ============
 Welcome! This is the documentation for ``melampus``, the machine learning infrastracture package for
-`SPHN-Imagine<http://medgift.hevs.ch/wordpress/projects/imagine/>`_ project.
+SPHN-Imagine project (http://medgift.hevs.ch/wordpress/projects/imagine/).
 ``melampus`` is a high-level OO machine learning package for analyzing  data and features derived by
 medical images. The current version consists of three modules:
 
