@@ -17,7 +17,7 @@ class MelampusPreprocessor(object):
     The transformed datasets are stored and can be accessed on pre.data object in numpy array format
     """
     def __init__(self, filename: str, target_col=None):
-        self.filename = '../' + filename
+        self.filename = filename
         self.target_col = target_col
         self.outcomes = []
         self.data = pd.DataFrame
