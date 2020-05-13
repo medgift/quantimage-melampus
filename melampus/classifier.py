@@ -64,6 +64,7 @@ class MelampusClassifier:
         Initializes the ``self.classifier`` object calling the corresponding sklearn module for the desired algorithm. E.g.:
         ``algorithm='random_forest'`` a Random Forest classifier from ``scikit-learn`` library will be trained.
         """
+
         self.classifier = LogisticRegression()  # default method
         if self.algorithm == 'logistic_regression':
             self.classifier = LogisticRegression()
@@ -80,6 +81,7 @@ class MelampusClassifier:
         """
         Preprocessing of the data using :class:`melampus.preprocessor.MelampusPreprocessor`.
         """
+
         pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col)
         if self.scaling:
             pre.standarize_data()
@@ -98,6 +100,7 @@ class MelampusClassifier:
     def train(self):
         """
         Simple training of a classifier model to fit on **the whole** dataset; without cross-validation or evaluations.
+
         :return: The trained model (type: object)
         """
 
@@ -116,9 +119,12 @@ class MelampusClassifier:
         """
         Training of a classifier model with holding out a specific part of the available data as a test set.
         For instance to train a model with 70% of the dataset, and then test it out with the remaining 30%.
+
         :param test_size: proportion of the samples the user wants to leave out. It must be provided as a float number.
         So, for example, if we split 70%-30%, the user must provide the amount of 30% as a float number: 0.3
+
         :type test_size: float, required
+
         :return:
             - The trained model (type: object)
             - The test set: the samples that were holded out as a test set
@@ -141,6 +147,7 @@ class MelampusClassifier:
         Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
         For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
+
         :return: The trained model (type: object)
         """
 
@@ -153,6 +160,7 @@ class MelampusClassifier:
     def predict(self, samples: list, predict_probabilities=False):
         """
         Method to use a trained model to make predictions on new samples.
+
         :param samples: The new samples on which we want to make predictions
         :type samples: list, required
         :param predict_probabilities: If True, the method returns probability predictions **for each class seperately** instead of binary ones
