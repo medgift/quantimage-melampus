@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="quantimage-melampus", # Replace with your own username
-    version="0.0.5",
+    version="0.0.6",
     author="Orfeas Aidonopoulos",
     author_email="orfeas.aidonopoulos@hevs.ch",
     description="Melampus: Machine learning package for Imagine infrastracture.",

@@ -7,6 +7,7 @@ Melampus consists of three modules:
 1. Classifier
 2. Data preprocessor 
 3. Feature selector
+4. Survival analysis
 
 See the detailed documentation here: https://imagine-melampus.readthedocs.io/en/latest/
 
