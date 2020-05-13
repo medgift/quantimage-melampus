@@ -121,9 +121,9 @@ class MelampusClassifier:
         For instance to train a model with 70% of the dataset, and then test it out with the remaining 30%.
 
         :param test_size: proportion of the samples the user wants to leave out. It must be provided as a float number.
-        So, for example, if we split 70%-30%, the user must provide the amount of 30% as a float number: 0.3
-
         :type test_size: float, required
+
+        So, for example, if we split 70%-30%, the user must provide the amount of 30% as a float number: 0.3
 
         :return:
             - The trained model (type: object)
@@ -164,7 +164,7 @@ class MelampusClassifier:
         :param samples: The new samples on which we want to make predictions
         :type samples: list, required
         :param predict_probabilities: If True, the method returns probability predictions **for each class seperately** instead of binary ones
-        :type predict_probabilities: bool, optional (Default value = False)
+        :type predict_probabilities: bool, optional - default value = False
         :return: The predictions (or probabilities). Type: **list** (or **list of lists** for probabilities of each class)
         """
 
