@@ -1,11 +1,15 @@
 from time import time
 
+import warnings
+from sklearn.exceptions import DataConversionWarning
+
+warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.model_selection import StratifiedKFold, cross_val_predict, train_test_split
 from sklearn.svm import SVC
-
 from melampus.preprocessor import MelampusPreprocessor
 
 
@@ -36,6 +40,7 @@ class MelampusClassifier:
     :param normalize: Normalization of data with L2 norm.
     :type normalize: bool, optional, defaults to False
     """
+
     def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
                  dim_red=(False, 0),
                  normalize=False):
@@ -69,7 +74,7 @@ class MelampusClassifier:
         elif self.algorithm == 'random_forest':
             self.classifier = RandomForestClassifier()
         elif self.algorithm == 'svm':
-            self.classifier = SVC()
+            self.classifier = SVC(probability=True)
 
     def preprocess_data(self):
         """
@@ -92,15 +97,74 @@ class MelampusClassifier:
 
     def train(self):
         """
+        Simple training of a classifier model to fit on **the whole** dataset; without cross-validation or evaluations.
+        :return: The trained model (type: object)
+        """
+
+        try:
+            print('classifier training (method: {})..'.format(self.algorithm))
+            t0 = time()
+            self.classifier.fit(self.data, self.outcomes)
+        except Exception as e:
+            print(str(e))
+            raise
+
+        print('classifier was trained without cv or evaluation in {} sec'.format(time() - t0))
+        return self.classifier
+
+    def train_with_cv(self, test_size: float):
+        """
+        Training of a classifier model with holding out a specific part of the available data as a test set.
+        For instance to train a model with 70% of the dataset, and then test it out with the remaining 30%.
+        :param test_size: proportion of the samples the user wants to leave out. It must be provided as a float number.
+        So, for example, if we split 70%-30%, the user must provide the amount of 30% as a float number: 0.3
+        :type test_size: float, required
+        :return:
+            - The trained model (type: object)
+            - The test set: the samples that were holded out as a test set
+        """
+
+        x_train, x_test, y_train, y_test = train_test_split(self.data, self.outcomes, test_size=test_size)
+        try:
+            print('classifier training (method: {})..'.format(self.algorithm))
+            t0 = time()
+            self.classifier.fit(x_train, y_train)
+        except Exception as e:
+            print(str(e))
+            raise
+
+        print('classifier was trained with CV (train: {0}% - test: {1}%)) in {2} sec'.format((1-test_size)*100, test_size*100, time() - t0))
+        return self.classifier, x_test
+
+    def train_and_evaluate(self):
+        """
         Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
         For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
+        :return: The trained model (type: object)
         """
+
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
         predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
-        print('classifier was trained in {} sec'.format(time() - t0))
         self.calculate_assessment_metrics(predictions)
+        print('classifier was trained with Stratified 5-fold CV and evaluations in {} sec'.format(time() - t0))
+
+    def predict(self, samples: list, predict_probabilities=False):
+        """
+        Method to use a trained model to make predictions on new samples.
+        :param samples: The new samples on which we want to make predictions
+        :type samples: list, required
+        :param predict_probabilities: If True, the method returns probability predictions **for each class seperately** instead of binary ones
+        :type predict_probabilities: bool, optional (Default value = False)
+        :return: The predictions (or probabilities). Type: **list** (or **list of lists** for probabilities of each class)
+        """
+
+        if predict_probabilities:
+            return self.classifier.predict_proba(samples)
+            # return self.classifier.predict_log_proba_(samples)
+
+        return self.classifier.predict(samples)
 
     def calculate_assessment_metrics(self, predictions: list):
         """
