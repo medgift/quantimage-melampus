@@ -51,12 +51,16 @@ Classifier
     from melampus.classifier import MelampusClassifier
 
     outcomes = [0, 1] * 6
-    mel_clf = MelampusClassifier(filename='synthetic_data/all.csv', algorithm_name='logistic_regression', target_col='label',
+    mel_clf = MelampusClassifier(filename='/home/orfeas/PycharmProjects/melampus/synthetic_data/all.csv', algorithm_name='logistic_regression', target_col='label',
                                  normalize=True, scaling=True, dim_red=(True, 5))
-    mel_clf.train()
+    trained_model = mel_clf.train() # simple train of the model on all data (no cross-validation or evaluations)
+    trained_model = mel_clf.train_and_evaluate() # train a model with Stratified 5-fold cross-validation and evaluation of the model
+    trained_model, new_cases_to_test = mel_clf.train_with_cv(test_size=0.3) # train a model with user-specific cross-validation
+    preds = mel_clf.predict(samples=new_cases_to_test, predict_probabilities=True) # probability predictions on new samples
+    print(preds)
     accuracy =mel_clf.metrics['accuracy']
     precision = mel_clf.metrics['precision']
-
+    print(accuracy, precision)
 
 Feature Selector
 *******************
@@ -83,3 +87,23 @@ Feature Selector
     fs.rfe()
     x_tr = fs.drop_correlated_features(metric='pearson', score=0.9)
     selected_features = fs.identify_correlated_features_with_target_variable(score=0.95, metric= 'pearson', target_var= 'volT')
+
+Survival analysis
+*******************
+.. code-block:: python
+
+    from melampus.survival_analysis import MelampusSurvivalAnalyzer
+    import pandas as pd
+    from lifelines.datasets import load_regression_dataset, load_waltons, load_rossi
+
+    waltons = load_waltons()
+    data_reg = load_regression_dataset()
+    rossi_data = load_rossi()
+
+
+    df = pd.read_csv('../synthetic_data/survival_data.csv')
+    data = df.dropna(axis=0) # delete empty rows
+
+    mel_survival = MelampusSurvivalAnalyzer(data=data, time_column='OS', event_column='Dcd')
+    concordance = mel_survival.train()
+    print(concordance)
