@@ -93,17 +93,9 @@ Survival analysis
 .. code-block:: python
 
     from melampus.survival_analysis import MelampusSurvivalAnalyzer
-    import pandas as pd
-    from lifelines.datasets import load_regression_dataset, load_waltons, load_rossi
 
-    waltons = load_waltons()
-    data_reg = load_regression_dataset()
-    rossi_data = load_rossi()
-
-
-    df = pd.read_csv('../synthetic_data/survival_data.csv')
-    data = df.dropna(axis=0) # delete empty rows
-
-    mel_survival = MelampusSurvivalAnalyzer(data=data, time_column='OS', event_column='Dcd')
+    mel_survival = MelampusSurvivalAnalyzer(filename='/home/orfeas/PycharmProjects/melampus/synthetic_data/survival_data.csv',
+                                            time_column='OS', event_column='Dcd')
     concordance = mel_survival.train()
-    print(concordance)
+    print('Concordance score: {}'.format(concordance))
+
