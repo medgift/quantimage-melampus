@@ -1,25 +1,26 @@
 import pandas as pd
 from lifelines import KaplanMeierFitter, NelsonAalenFitter, CoxPHFitter
+from melampus.preprocessor import MelampusPreprocessor
 
-
-class MelampusSurvivalAnalyzer:
+class MelampusSurvivalAnalyzer(MelampusPreprocessor):
     """
     MelampusSurvivalAnalyzer is used for two kinds of survival analysis:  and regression. For
 
     - 1. Analysis for univariate models using **Kaplan-Meier** or **Nelson-Aalen** approach
     - 2. Survival regression using **Cox's model**
 
-    :param data: Dataset for survival analysis
-    :type data: pandas.DataFrame, required
+    :param filename: The name of the csv file that includes the data
+    :type filename: str, required
     :param time_column: The column name of the duration variable
     :type time_column: str, required
     :param event_column: The column name of the observed event variable
     :type event_column: str, required
     :param method: The name of the desired method. Options: {'kaplan_meier','nelson_aalen','cox_model'}. Default value: 'cox_model'
+    :type method: str, optional
     """
 
-    def __init__(self, data: pd.DataFrame, time_column: str, event_column: str, method='cox_model'):
-        self.data = data
+    def __init__(self, filename: str, time_column: str, event_column: str, method='cox_model'):
+        super().__init__(filename=filename)
         self.time_column = time_column
         self.event_column = event_column
         self.method = method

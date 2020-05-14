@@ -34,14 +34,14 @@ class MelampusPreprocessor(object):
         :raise Exception: If the path of csvfile is not valid or not found.
         """
         try:
-            df = pd.read_csv(self.filename)
+            self.data = pd.read_csv(self.filename)
         except FileNotFoundError as e:
             raise FileNotFoundError(e)
 
         # store patient ID in another list
         try:
-            self.ids = df['PatientID']
-            self.data = df.drop('PatientID', axis=1)  # delete column with Ids
+            self.ids = self.data['PatientID']
+            self.data = self.data.drop('PatientID', axis=1)  # delete column with Ids
         except KeyError:
             pass
 
