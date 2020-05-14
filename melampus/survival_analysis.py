@@ -38,6 +38,7 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
 
         :raise KeyError: If the column names do not exist in the dataset.
         """
+
         try:
             self.T = self.data[self.time_column]
             self.E = self.data[self.event_column]
@@ -49,6 +50,7 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
         Initializes the ``self.analyzer`` object calling the corresponding ``lifelines`` module for the desired algorithm. E.g.:
         ``method='kaplan_meier'`` the Kaplan-Meier estimator from ``lifelines`` library will be initialized.
         """
+
         if self.method == 'kaplan_meier':
             self.analyzer = KaplanMeierFitter()
         elif self.method == 'nelson_aalen':
@@ -61,8 +63,10 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
     def train(self):
         """
         Train the model based on desired algorithm.
+
         :return: The concordance index
         """
+
         if self.method == 'cox_model':
             try:
                 self.analyzer.fit(self.data, duration_col=self.time_column, event_col=self.event_column)
