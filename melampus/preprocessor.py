@@ -7,8 +7,9 @@ class MelampusPreprocessor(object):
     """
     This is the preprocessor class for melampus platform. It process data in order to be standarized and normalized.
     It also provides the method for dimensionaliry reduction and the removal of high correlated features.
-    Melampus Preprocessor accepts a csv file with the **column names must be included**. Also, the dataset must contain a separate column named exactly **'PatientID'** with the samples ids.
+    Melampus Preprocessor accepts a csv file with the **column names must be included**.
     The name of the target variable can also be given as an optional parameter in case that the target variable is included in the csv file.
+
     :param filename: The name of the csv file that includes the data
     :type filename: str, required
     :param target_col: name of the target variable if included in the csv dataset, defaults to None
@@ -16,6 +17,7 @@ class MelampusPreprocessor(object):
 
     The transformed datasets are stored and can be accessed on pre.data object in numpy array format
     """
+
     def __init__(self, filename: str, target_col=None):
         self.filename = filename
         self.target_col = target_col
