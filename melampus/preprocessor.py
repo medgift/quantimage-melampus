@@ -35,6 +35,7 @@ class MelampusPreprocessor(object):
 
         :raise Exception: If the path of csvfile is not valid or not found.
         """
+
         try:
             self.data = pd.read_csv(self.filename)
         except FileNotFoundError as e:
@@ -52,28 +53,32 @@ class MelampusPreprocessor(object):
         Herein, the outcomes are extracted from a column in the csvfile. This method is called only if ``target_col``
         parameter is provided which is the column with the outcomes in the csv file.
         """
+
         self.outcomes = self.data[self.target_col].to_frame(self.target_col)
         self.data = self.data.drop(self.target_col, axis=1)
 
     def standarize_data(self):
-        '''
+        """
         Standarization of the data using scikit-learn ``StandardScaler``.
-        '''
+        """
+
         scaler = StandardScaler().fit(self.data)
         self.data = scaler.transform(self.data)
 
     def normalize_data(self):
-        '''
+        """
         Normalize data with L2 norm using ``normalize`` method from scikit-learn
-        '''
+        """
+
         self.data = normalize(self.data)
 
     def dimensionality_reduction(self, num_components: int):
-        '''
+        """
         Reduce the amount of features into a new feature space using Principal Component Analysis.
 
         :param num_components: number of dimentions in the new feature space
         :type num_components: int, required
-        '''
+        """
+
         pca = PCA(n_components=num_components)
         self.data = pca.fit_transform(self.data)
