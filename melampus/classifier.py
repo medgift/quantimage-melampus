@@ -50,6 +50,8 @@ class MelampusClassifier:
         self.dim_red = dim_red
         self.normalize = normalize
         self.data, self.outcomes = [], []
+        self.num_cases = int
+        self.num_cases_in_each_class = []
         self.outcomes = outcomes
         self.algorithm = algorithm_name
         self.classifier = object
@@ -94,6 +96,8 @@ class MelampusClassifier:
             pre.normalize_data()
 
         self.data = pre.data
+        self.num_cases = pre.num_cases
+        self.num_cases_in_each_class = pre.num_cases_in_each_class
         if self.target_col is not None:
             self.outcomes = pre.outcomes
 
@@ -153,9 +157,17 @@ class MelampusClassifier:
 
         print('classifier training (method: {})..'.format(self.algorithm))
         t0 = time()
-        predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=5))
+        k = 5
+        minimum_number_of_cases = min([i for i in self.num_cases_in_each_class.values()])
+        if minimum_number_of_cases < 5:
+            k = minimum_number_of_cases
+
+        if self.num_cases > 5:
+            predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=k))
+        else:
+            raise Exception('No sense to train a predictive model, number of cases are less than 5..')
         self.calculate_assessment_metrics(predictions)
-        print('classifier was trained with Stratified 5-fold CV and evaluations in {} sec'.format(time() - t0))
+        print('classifier was trained with Stratified {0}-fold CV and evaluations in {1} sec'.format(k, (time() - t0)))
 
     def predict(self, samples: list, predict_probabilities=False):
         """

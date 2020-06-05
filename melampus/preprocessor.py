@@ -23,6 +23,8 @@ class MelampusPreprocessor(object):
         self.target_col = target_col
         self.outcomes = []
         self.data = pd.DataFrame
+        self.num_cases = int
+        self.num_cases_in_each_class = dict
         self.process_data_from_csv()
 
         if target_col is not None:
@@ -35,6 +37,7 @@ class MelampusPreprocessor(object):
 
         :raise Exception: If the path of csvfile is not valid or not found.
         """
+        #TODO: identify number of cases
 
         try:
             self.data = pd.read_csv(self.filename)
@@ -44,6 +47,8 @@ class MelampusPreprocessor(object):
         # store patient ID in another list
         try:
             self.ids = self.data['PatientID']
+            self.num_cases = len(self.ids)
+            self.num_cases_in_each_class = self.data['label'].value_counts().to_dict()
             self.data = self.data.drop('PatientID', axis=1)  # delete column with Ids
         except KeyError:
             pass
