@@ -37,7 +37,6 @@ class MelampusPreprocessor(object):
 
         :raise Exception: If the path of csvfile is not valid or not found.
         """
-        #TODO: identify number of cases
 
         try:
             self.data = pd.read_csv(self.filename)

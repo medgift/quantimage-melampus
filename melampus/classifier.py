@@ -148,13 +148,17 @@ class MelampusClassifier:
 
     def train_and_evaluate(self, leave_one_out = False):
         """
-        Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
+        Training of the initialized model with k-fold cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
-        For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
 
         :param leave_one_out: Leave one out method for cross-validation. default value=False
         :type leave_one_out: bool, optional
         :return: The trained model (type: object)
+
+        :raise Exception: If the number of samples in the training dataset is less than 5.
+
+        *Note about the cross-validation*: The selection of k is also done dynamically. If a class has less than 5 cases,
+        then k takes the value of that number. E.g.: in a dataset of 10 cases, with 8 cases were assigned to 1 and 2 cases to 0, then k=2
         """
 
         print('classifier training (method: {})..'.format(self.algorithm))
