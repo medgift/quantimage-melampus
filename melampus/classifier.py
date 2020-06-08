@@ -8,7 +8,7 @@ warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold, cross_val_predict, train_test_split
+from sklearn.model_selection import StratifiedKFold, KFold, cross_val_predict, train_test_split
 from sklearn.svm import SVC
 from melampus.preprocessor import MelampusPreprocessor
 
@@ -146,12 +146,14 @@ class MelampusClassifier:
         print('classifier was trained with CV (train: {0}% - test: {1}%)) in {2} sec'.format((1-test_size)*100, test_size*100, time() - t0))
         return self.classifier, x_test
 
-    def train_and_evaluate(self):
+    def train_and_evaluate(self, leave_one_out = False):
         """
         Training of the initialized model with cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
         For the model's training, we use the StratifiedKFold cv technique for imbalanced data.
 
+        :param leave_one_out: Leave one out method for cross-validation. default value=False
+        :type leave_one_out: bool, optional
         :return: The trained model (type: object)
         """
 
@@ -163,11 +165,15 @@ class MelampusClassifier:
             k = minimum_number_of_cases
 
         if self.num_cases > 5:
-            predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=StratifiedKFold(n_splits=k))
+            if leave_one_out:
+                k = self.num_cases
+
+            predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=KFold(n_splits=k))
         else:
             raise Exception('No sense to train a predictive model, number of cases are less than 5..')
         self.calculate_assessment_metrics(predictions)
         print('classifier was trained with Stratified {0}-fold CV and evaluations in {1} sec'.format(k, (time() - t0)))
+        return self.classifier
 
     def predict(self, samples: list, predict_probabilities=False):
         """
