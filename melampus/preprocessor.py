@@ -18,17 +18,16 @@ class MelampusPreprocessor(object):
     The transformed datasets are stored and can be accessed on pre.data object in numpy array format
     """
 
-    def __init__(self, filename: str, target_col=None):
+    def __init__(self, filename: str, target_col=None, outcomes=[]):
         self.filename = filename
         self.target_col = target_col
-        self.outcomes = []
+        self.outcomes = outcomes
         self.data = pd.DataFrame
         self.num_cases = int
-        self.num_cases_in_each_class = dict
+        self.num_cases_in_each_class = {}
+        self.multiclass_task = bool
         self.process_data_from_csv()
 
-        if target_col is not None:
-            self.identify_outcomes()
 
     def process_data_from_csv(self):
         """
@@ -47,10 +46,26 @@ class MelampusPreprocessor(object):
         try:
             self.ids = self.data['PatientID']
             self.num_cases = len(self.ids)
-            self.num_cases_in_each_class = self.data['label'].value_counts().to_dict()
+            if self.target_col is not None:
+                self.num_cases_in_each_class = self.data[self.target_col].value_counts().to_dict()
+            else:
+                if len(self.outcomes) != len(self.data):
+                    raise Exception('Incosistent number of cases between outcomes and samples')
+
+                for el in self.outcomes:
+                    self.num_cases_in_each_class[el] = self.outcomes.count(el)
+                if len(self.num_cases_in_each_class) > 2:
+                    self.multiclass_task = True
+                else:
+                    self.multiclass_task = False
+
             self.data = self.data.drop('PatientID', axis=1)  # delete column with Ids
         except KeyError:
             pass
+
+        if self.target_col is not None:
+            self.identify_outcomes()
+            return
 
     def identify_outcomes(self):
         """

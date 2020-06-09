@@ -53,6 +53,7 @@ class MelampusClassifier:
         self.num_cases = int
         self.num_cases_in_each_class = []
         self.outcomes = outcomes
+        self.multiclass = bool
         self.algorithm = algorithm_name
         self.classifier = object
         self.metrics = {'accuracy': None, 'precision': None, 'recall': None, 'area_under_curve': None, 'true_pos': None,
@@ -84,7 +85,7 @@ class MelampusClassifier:
         Preprocessing of the data using :class:`melampus.preprocessor.MelampusPreprocessor`.
         """
 
-        pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col)
+        pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col, outcomes=self.outcomes)
         if self.scaling:
             pre.standarize_data()
 
@@ -98,6 +99,7 @@ class MelampusClassifier:
         self.data = pre.data
         self.num_cases = pre.num_cases
         self.num_cases_in_each_class = pre.num_cases_in_each_class
+        self.multiclass_task = pre.multiclass_task
         if self.target_col is not None:
             self.outcomes = pre.outcomes
 
@@ -205,9 +207,19 @@ class MelampusClassifier:
         :type predictions: list, required
         The results are stored in self.metrics object (dictionary).
         """
-        self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
         self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
-        self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions)
-        self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions)
-        self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics[
-            'true_pos'] = metrics.confusion_matrix(self.outcomes, predictions).ravel()
+
+        if self.multiclass_task:
+            self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, average=None)
+            self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions, average=None)
+            self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions, multi_class='ovr')
+            self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics[
+                'true_pos'] = metrics.multilabel_confusion_matrix(self.outcomes, predictions).ravel()
+
+        else:
+            self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, )
+            self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions)
+            self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
+            self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = \
+                metrics.confusion_matrix(self.outcomes, predictions).ravel()
+

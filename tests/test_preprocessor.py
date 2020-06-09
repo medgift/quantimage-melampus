@@ -7,5 +7,5 @@ class TestPreprocessor(unittest.TestCase):
         self.assertRaises(FileNotFoundError, MelampusPreprocessor, 'synt')
         self.assertRaises(KeyError, MelampusPreprocessor, 'tests/mockfiles/output_L0_processed.csv')
         with self.assertRaises(Exception):
-            MelampusPreprocessor('tests/mockfiles/output_L0_GTVL.csv', target_col ='NAME_NOT_EXISTS')
+            MelampusPreprocessor('tests/mockfiles/output_L0_GTVL.csv', target_col='NAME_NOT_EXISTS')
 
