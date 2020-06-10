@@ -53,7 +53,6 @@ class MelampusClassifier:
         self.num_cases = int
         self.num_cases_in_each_class = []
         self.outcomes = outcomes
-        self.multiclass = bool
         self.algorithm = algorithm_name
         self.classifier = object
         self.metrics = {'accuracy': None, 'precision': None, 'recall': None, 'area_under_curve': None, 'true_pos': None,
@@ -99,7 +98,6 @@ class MelampusClassifier:
         self.data = pre.data
         self.num_cases = pre.num_cases
         self.num_cases_in_each_class = pre.num_cases_in_each_class
-        self.multiclass_task = pre.multiclass_task
         if self.target_col is not None:
             self.outcomes = pre.outcomes
 
@@ -145,10 +143,12 @@ class MelampusClassifier:
             print(str(e))
             raise
 
-        print('classifier was trained with CV (train: {0}% - test: {1}%)) in {2} sec'.format((1-test_size)*100, test_size*100, time() - t0))
+        print('classifier was trained with CV (train: {0}% - test: {1}%)) in {2} sec'.format((1 - test_size) * 100,
+                                                                                             test_size * 100,
+                                                                                             time() - t0))
         return self.classifier, x_test
 
-    def train_and_evaluate(self, leave_one_out = False):
+    def train_and_evaluate(self, leave_one_out=False):
         """
         Training of the initialized model with k-fold cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
@@ -213,19 +213,3 @@ class MelampusClassifier:
         self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
         self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = \
             metrics.confusion_matrix(self.outcomes, predictions).ravel()
-
-        '''
-        if self.multiclass_task:
-            self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, average=None)
-            self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions, average=None)
-            self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions, multi_class='ovr')
-            self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics[
-                'true_pos'] = metrics.multilabel_confusion_matrix(self.outcomes, predictions).ravel()
-
-        else:
-            self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, )
-            self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions)
-            self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
-            self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = \
-                metrics.confusion_matrix(self.outcomes, predictions).ravel()
-        '''

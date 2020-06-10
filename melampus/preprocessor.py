@@ -25,9 +25,7 @@ class MelampusPreprocessor(object):
         self.data = pd.DataFrame
         self.num_cases = int
         self.num_cases_in_each_class = {}
-        self.multiclass_task = bool
         self.process_data_from_csv()
-
 
     def process_data_from_csv(self):
         """
@@ -54,10 +52,6 @@ class MelampusPreprocessor(object):
 
                 for el in self.outcomes:
                     self.num_cases_in_each_class[el] = self.outcomes.count(el)
-                if len(self.num_cases_in_each_class) > 2:
-                    self.multiclass_task = True
-                else:
-                    self.multiclass_task = False
 
             self.data = self.data.drop('PatientID', axis=1)  # delete column with Ids
         except KeyError:
