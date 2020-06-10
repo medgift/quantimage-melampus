@@ -101,6 +101,6 @@ Survival analysis
 
     mel_survival = MelampusSurvivalAnalyzer(filename='/home/orfeas/PycharmProjects/melampus/synthetic_data/survival_data.csv',
                                             time_column='OS', event_column='Dcd')
-    concordance = mel_survival.train()
+    model, concordance = mel_survival.train()
     print('Concordance score: {}'.format(concordance))
 
