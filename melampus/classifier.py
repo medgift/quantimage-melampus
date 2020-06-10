@@ -208,7 +208,13 @@ class MelampusClassifier:
         The results are stored in self.metrics object (dictionary).
         """
         self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
+        self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, )
+        self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions)
+        self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
+        self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = \
+            metrics.confusion_matrix(self.outcomes, predictions).ravel()
 
+        '''
         if self.multiclass_task:
             self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, average=None)
             self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions, average=None)
@@ -222,4 +228,4 @@ class MelampusClassifier:
             self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
             self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = \
                 metrics.confusion_matrix(self.outcomes, predictions).ravel()
-
+        '''
