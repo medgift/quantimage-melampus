@@ -8,7 +8,7 @@ warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold, KFold, cross_val_predict, train_test_split
+from sklearn.model_selection import StratifiedKFold, KFold, cross_val_predict, train_test_split, GridSearchCV
 from sklearn.svm import SVC
 from melampus.preprocessor import MelampusPreprocessor
 
@@ -59,7 +59,6 @@ class MelampusClassifier:
                         'false_pos': None, 'true_neg': None, 'false_neg': None}
         self.preprocess_data()
         self.init_classifier()
-        self.regression_methods = ['lasso_regression', 'elastic_net']
 
     def init_classifier(self):
         """
@@ -180,6 +179,37 @@ class MelampusClassifier:
         self.calculate_assessment_metrics(predictions)
         print('classifier was trained with Stratified {0}-fold CV and evaluations in {1} sec'.format(k, (time() - t0)))
         return self.classifier
+
+    def train_grid_search(self):
+        parameters = self.create_parameters_grid()
+        search = GridSearchCV(estimator=self.classifier, param_grid=parameters)
+        t0 = time()
+        print('training with grid search. It may take Some time... :)')
+        try:
+            search.fit(self.data, self.outcomes)
+            print('Identification of the best estimator was done in {} secs'.format(time()-t0))
+            return search.best_estimator_, search.best_params_
+        except Exception as e:
+            print('Exception: {}'.format(str(e)))
+            raise
+
+    def create_parameters_grid(self):
+        tuned_parameters = []
+        if self.algorithm == 'random_forest':
+            tuned_parameters = [{'n_estimators': [10, 50, 100], 'max_depth': [None, 2, 3, 4], 'min_samples_split': [int(self.num_cases/4), int(self.num_cases/3), int(self.num_cases/2), int(self.num_cases)],
+                                 'max_features': ['auto', 'sqrt', 'log2']}]
+        elif self.algorithm == 'svm':
+            tuned_parameters = [{'C': [1, 10, 100, 1000], 'kernel': ['linear', 'poly', 'rbf', 'sigmoid']}]
+
+        elif self.algorithm == 'logistic_regression':
+            tuned_parameters = []
+
+        elif self.algorithm == 'lasso_regression':
+            tuned_parameters = []
+        elif self.algorithm == 'elastic_net':
+            tuned_parameters = []
+
+        return tuned_parameters
 
     def predict(self, samples: list, predict_probabilities=False):
         """
