@@ -181,6 +181,11 @@ class MelampusClassifier:
         return self.classifier
 
     def train_grid_search(self):
+        """
+        It executes a grid training alternating all the possible parameters as they are set in :meth:`melampus.classifier.MelampusClassifier.create_parameters_grid` method
+        :return: best_estimator (object), best_parameters (dict)
+        """
+
         parameters = self.create_parameters_grid()
         search = GridSearchCV(estimator=self.classifier, param_grid=parameters)
         t0 = time()
@@ -194,6 +199,12 @@ class MelampusClassifier:
             raise
 
     def create_parameters_grid(self):
+        """
+        It creates the possible values for each of the parameters of a Classifier.
+
+        :return: the parameters to be tuned (list)
+        """
+
         tuned_parameters = []
         if self.algorithm == 'random_forest':
             tuned_parameters = [{'n_estimators': [10, 50, 100], 'max_depth': [None, 2, 3, 4], 'min_samples_split': [int(self.num_cases/4), int(self.num_cases/3), int(self.num_cases/2), int(self.num_cases)],
