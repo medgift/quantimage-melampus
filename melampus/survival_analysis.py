@@ -39,3 +39,13 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
             raise Exception(str(e))
 
         return self.analyzer, self.analyzer.concordance_index_
+
+    def predict(self, subjects: [], times: []):
+        """
+        This methods predict the event time of censored subjects. [In progress] For more details see:
+        https://lifelines.readthedocs.io/en/latest/Survival%20Regression.html#prediction
+        :return:
+        """
+        self.analyzer.predict_survival_function(subjects, times=times)
+        self.analyzer.predict_median()
+        pass
