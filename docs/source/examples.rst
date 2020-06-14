@@ -50,13 +50,15 @@ Classifier
 
     from melampus.classifier import MelampusClassifier
 
-    outcomes = [0, 1] * 6
-    mel_clf = MelampusClassifier(filename='/home/orfeas/PycharmProjects/melampus/synthetic_data/all_very_few_samples.csv', algorithm_name='random_forest', target_col='label',
+    outcomes = [0, 1] * 9
+    mel_clf = MelampusClassifier(filename='/home/orfeas/PycharmProjects/melampus/synthetic_data/all_very_few_samples.csv',
+                                 algorithm_name='svm', outcomes=outcomes,
                                  normalize=True, scaling=True, dim_red=(True, 5))
 
-
-    trained_model = mel_clf.train_and_evaluate(leave_one_out=False) # train a model with Stratified 5-fold cross-validation and evaluation of the model
-    accuracy =mel_clf.metrics['accuracy']
+    model, parameters = mel_clf.train_grid_search()
+    trained_model = mel_clf.train_and_evaluate(
+        leave_one_out=False)  # train a model with Stratified 5-fold cross-validation and evaluation of the model
+    accuracy = mel_clf.metrics['accuracy']
     precision = mel_clf.metrics['precision']
     print(accuracy, precision)
 
