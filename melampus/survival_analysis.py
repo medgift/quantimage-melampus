@@ -20,7 +20,7 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
 
     def __init__(self, filename: str, time_column: str, event_column: str):
         # Change the initialization of data, as we don't have a single outcomes array like for classification
-        self.data = pd.read_csv(self.filename)
+        self.data = pd.read_csv(filename)
         self.time_column = time_column
         self.event_column = event_column
         self.T = pd.Series  # time variable
