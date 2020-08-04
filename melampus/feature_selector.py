@@ -6,9 +6,11 @@ import pandas as pd
 
 class MelampusFeatureSelector:
 
-    def __init__(self, filename: str):
-        # Change the initialization of data
-        self.data = pd.read_csv(filename)
+    def __init__(self, filename: str, dataframe: pd.DataFrame):
+        if not filename:
+            self.data = dataframe
+        else:
+            self.data = pd.read_csv(filename)
 
     """
     Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
