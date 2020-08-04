@@ -6,7 +6,7 @@ import pandas as pd
 
 class MelampusFeatureSelector:
 
-    def __init__(self, filename: str, dataframe: pd.DataFrame):
+    def __init__(self, filename: str = None, dataframe: pd.DataFrame = None):
         if not filename:
             self.data = dataframe
         else:
