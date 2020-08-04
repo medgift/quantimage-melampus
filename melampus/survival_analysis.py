@@ -35,7 +35,7 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
         """
 
         try:
-            self.analyzer.fit(self.data, duration_col=self.time_column, event_col=self.event_column)
+            self.analyzer.fit(self.data, duration_col=self.time_column, event_col=self.event_column, show_progress=True)
         except Exception as e:
             raise Exception(str(e))
 
