@@ -2,10 +2,13 @@ from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from melampus.preprocessor import MelampusPreprocessor
 
+class MelampusFeatureSelector:
 
-class MelampusFeatureSelector(MelampusPreprocessor):
+    def __init__(self, filename: str):
+        # Change the initialization of data
+        self.data = pd.read_csv(filename)
+
     """
     Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
     It inherits the inputs of :class:`melampus.preprocessor.MelampusPreprocessor`
