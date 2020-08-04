@@ -2,6 +2,7 @@ from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import numpy as np
+import pandas as pd
 
 class MelampusFeatureSelector:
 
