@@ -25,7 +25,7 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
         self.event_column = event_column
         self.T = pd.Series  # time variable
         self.E = pd.Series  # event variable
-        self.analyzer = CoxPHFitter()
+        self.analyzer = CoxPHFitter(penalizer=0.1)
 
     def train(self):
         """
@@ -36,6 +36,7 @@ class MelampusSurvivalAnalyzer(MelampusPreprocessor):
 
         try:
             self.analyzer.fit(self.data, duration_col=self.time_column, event_col=self.event_column, show_progress=True)
+            self.analyzer.print_summary()
         except Exception as e:
             raise Exception(str(e))
 
