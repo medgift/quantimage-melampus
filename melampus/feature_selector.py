@@ -31,7 +31,11 @@ class MelampusFeatureSelector:
         thres = p * (1 - p)
         sel = VarianceThreshold(threshold=thres)
         try:
-            return sel.fit_transform(self.data)
+            # Perform the feature selection
+            sel.fit_transform(self.data)
+
+            # Return a DataFrame with remaining column names
+            return self.data[self.data.columns[sel.get_support(indices=True)]]
         except Exception as e:
             raise Exception("feature_selector-variance_threshold: EXCEPTION: {}".format(e))
 
