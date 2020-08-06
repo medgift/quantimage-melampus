@@ -4,8 +4,8 @@ from sklearn.linear_model import LogisticRegression
 import numpy as np
 import pandas as pd
 
-class MelampusFeatureSelector:
 
+class MelampusFeatureSelector:
     def __init__(self, filename: str = None, dataframe: pd.DataFrame = None):
         if not filename:
             self.data = dataframe
@@ -16,6 +16,7 @@ class MelampusFeatureSelector:
     Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
     It inherits the inputs of :class:`melampus.preprocessor.MelampusPreprocessor`
     """
+
     def variance_threshold(self, p_val=None):
         """
         It removes all features whose variance doesn’t meet some threshold. By default, it removes all zero-variance features
@@ -35,9 +36,11 @@ class MelampusFeatureSelector:
             sel.fit_transform(self.data)
 
             # Return a DataFrame with remaining column names
-            return self.data[self.data.columns[sel.get_support(indices=True)]]
+            return self.data[self.data.columns[sel.get_support(indices=True)]], p
         except Exception as e:
-            raise Exception("feature_selector-variance_threshold: EXCEPTION: {}".format(e))
+            raise Exception(
+                "feature_selector-variance_threshold: EXCEPTION: {}".format(e)
+            )
 
     def drop_correlated_features(self, score: float, metric: str):
         """
@@ -52,13 +55,17 @@ class MelampusFeatureSelector:
 
         df = self.data
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
-        upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+        upper = corr_matrix.where(
+            np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool)
+        )
         # Find index of feature columns with correlation greater than a defined score and then drop these features
         to_drop = [column for column in upper.columns if any(upper[column] > score)]
         df = df.drop(df[to_drop], axis=1)
         return df
 
-    def identify_correlated_features_with_target_variable(self, score: float, metric: str, target_var: str):
+    def identify_correlated_features_with_target_variable(
+        self, score: float, metric: str, target_var: str
+    ):
         """
         With this method we identify all features that are high correlated with the outcome variable.
         It should be used only for regression tasks. The target variable **must be included into the dataset**.
@@ -72,7 +79,9 @@ class MelampusFeatureSelector:
         :return: The names of the relevant correlated features
         """
 
-        df = self.data.join(self.outcomes)  # Merge data with target variable into one dataframe
+        df = self.data.join(
+            self.outcomes
+        )  # Merge data with target variable into one dataframe
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         # Correlation with output variable
         cor_target = abs(corr_matrix[target_var])
@@ -94,7 +103,9 @@ class MelampusFeatureSelector:
         """
 
         logreg = LogisticRegression()
-        rfecv = RFECV(estimator=logreg, cv=StratifiedKFold(), scoring='accuracy', n_jobs=-1)
+        rfecv = RFECV(
+            estimator=logreg, cv=StratifiedKFold(), scoring="accuracy", n_jobs=-1
+        )
         try:
             rfecv.fit(self.data, self.outcomes)
             k = rfecv.n_features_

@@ -3,12 +3,18 @@ from time import time
 import warnings
 from sklearn.exceptions import DataConversionWarning
 
-warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold, KFold, cross_val_predict, train_test_split
+from sklearn.model_selection import (
+    StratifiedKFold,
+    KFold,
+    cross_val_predict,
+    train_test_split,
+    RepeatedKFold,
+)
 from sklearn.svm import SVC
 from melampus.preprocessor import MelampusPreprocessor
 
@@ -41,9 +47,16 @@ class MelampusClassifier:
     :type normalize: bool, optional, defaults to False
     """
 
-    def __init__(self, filename: str, algorithm_name: str, outcomes=[], target_col=None, scaling=False,
-                 dim_red=(False, 0),
-                 normalize=False):
+    def __init__(
+        self,
+        filename: str,
+        algorithm_name: str,
+        outcomes=[],
+        target_col=None,
+        scaling=False,
+        dim_red=(False, 0),
+        normalize=False,
+    ):
         self.filename = filename
         self.target_col = target_col
         self.scaling = scaling
@@ -55,11 +68,19 @@ class MelampusClassifier:
         self.outcomes = outcomes
         self.algorithm = algorithm_name
         self.classifier = object
-        self.metrics = {'accuracy': None, 'precision': None, 'recall': None, 'area_under_curve': None, 'true_pos': None,
-                        'false_pos': None, 'true_neg': None, 'false_neg': None}
+        self.metrics = {
+            "accuracy": None,
+            "precision": None,
+            "recall": None,
+            "area_under_curve": None,
+            "true_pos": None,
+            "false_pos": None,
+            "true_neg": None,
+            "false_neg": None,
+        }
         self.preprocess_data()
         self.init_classifier()
-        self.regression_methods = ['lasso_regression', 'elastic_net']
+        self.regression_methods = ["lasso_regression", "elastic_net"]
 
     def init_classifier(self):
         """
@@ -68,15 +89,17 @@ class MelampusClassifier:
         """
 
         self.classifier = LogisticRegression()  # default method
-        if self.algorithm == 'logistic_regression':
+        if self.algorithm == "logistic_regression":
             self.classifier = LogisticRegression()
-        elif self.algorithm == 'lasso_regression':
-            self.classifier = LogisticRegression(penalty='l1', solver='saga')
-        elif self.algorithm == 'elastic_net':
-            self.classifier = LogisticRegression(penalty='elasticnet', solver='saga', l1_ratio=0.5)
-        elif self.algorithm == 'random_forest':
+        elif self.algorithm == "lasso_regression":
+            self.classifier = LogisticRegression(penalty="l1", solver="saga")
+        elif self.algorithm == "elastic_net":
+            self.classifier = LogisticRegression(
+                penalty="elasticnet", solver="saga", l1_ratio=0.5
+            )
+        elif self.algorithm == "random_forest":
             self.classifier = RandomForestClassifier()
-        elif self.algorithm == 'svm':
+        elif self.algorithm == "svm":
             self.classifier = SVC(probability=True)
 
     def preprocess_data(self):
@@ -84,7 +107,9 @@ class MelampusClassifier:
         Preprocessing of the data using :class:`melampus.preprocessor.MelampusPreprocessor`.
         """
 
-        pre = MelampusPreprocessor(filename=self.filename, target_col=self.target_col, outcomes=self.outcomes)
+        pre = MelampusPreprocessor(
+            filename=self.filename, target_col=self.target_col, outcomes=self.outcomes
+        )
         if self.scaling:
             pre.standarize_data()
 
@@ -109,14 +134,18 @@ class MelampusClassifier:
         """
 
         try:
-            print('classifier training (method: {})..'.format(self.algorithm))
+            print("classifier training (method: {})..".format(self.algorithm))
             t0 = time()
             self.classifier.fit(self.data, self.outcomes)
         except Exception as e:
             print(str(e))
             raise
 
-        print('classifier was trained without cv or evaluation in {} sec'.format(time() - t0))
+        print(
+            "classifier was trained without cv or evaluation in {} sec".format(
+                time() - t0
+            )
+        )
         return self.classifier
 
     def train_with_cv(self, test_size: float):
@@ -134,27 +163,33 @@ class MelampusClassifier:
             - The test set: the samples that were holded out as a test set
         """
 
-        x_train, x_test, y_train, y_test = train_test_split(self.data, self.outcomes, test_size=test_size)
+        x_train, x_test, y_train, y_test = train_test_split(
+            self.data, self.outcomes, test_size=test_size
+        )
         try:
-            print('classifier training (method: {})..'.format(self.algorithm))
+            print("classifier training (method: {})..".format(self.algorithm))
             t0 = time()
             self.classifier.fit(x_train, y_train)
         except Exception as e:
             print(str(e))
             raise
 
-        print('classifier was trained with CV (train: {0}% - test: {1}%)) in {2} sec'.format((1 - test_size) * 100,
-                                                                                             test_size * 100,
-                                                                                             time() - t0))
+        print(
+            "classifier was trained with CV (train: {0}% - test: {1}%)) in {2} sec".format(
+                (1 - test_size) * 100, test_size * 100, time() - t0
+            )
+        )
         return self.classifier, x_test
 
-    def train_and_evaluate(self, leave_one_out=False):
+    def train_and_evaluate(self, leave_one_out=False, random_state=None):
         """
-        Training of the initialized model with k-fold cross-validation. Then, we calculate some assessment metrics for the
+        Training of the initialized model with repeated k-fold cross-validation. Then, we calculate some assessment metrics for the
         trained model using :meth:`melampus.classifier.MelampusClassifier.calculate_assessment_metrics` method.
 
         :param leave_one_out: Leave one out method for cross-validation. default value=False
         :type leave_one_out: bool, optional
+        :param random_state: Random state for allowing reproducibility, default value=None
+        :type random_state: int, optional
         :return: The trained model (type: object)
 
         :raise Exception: If the number of samples in the training dataset is less than 5.
@@ -163,10 +198,15 @@ class MelampusClassifier:
         then k takes the value of that number. E.g.: in a dataset of 10 cases, with 8 cases were assigned to 1 and 2 cases to 0, then k=2
         """
 
-        print('classifier training (method: {})..'.format(self.algorithm))
+        print("classifier training (method: {})..".format(self.algorithm))
         t0 = time()
         k = 5
-        minimum_number_of_cases = min([i for i in self.num_cases_in_each_class.values()])
+        repetitions = 10
+        validator = KFold(n_splits=k, random_state=random_state)
+
+        minimum_number_of_cases = min(
+            [i for i in self.num_cases_in_each_class.values()]
+        )
         if minimum_number_of_cases < 5:
             k = minimum_number_of_cases
 
@@ -174,12 +214,20 @@ class MelampusClassifier:
             if leave_one_out:
                 k = self.num_cases
 
-            predictions = cross_val_predict(self.classifier, self.data, self.outcomes, cv=KFold(n_splits=k))
+            predictions = cross_val_predict(
+                self.classifier, self.data, self.outcomes, cv=validator
+            )
         else:
-            raise Exception('No sense to train a predictive model, number of cases are less than 5..')
+            raise Exception(
+                "No sense to train a predictive model, number of cases are less than 5.."
+            )
         self.calculate_assessment_metrics(predictions)
-        print('classifier was trained with Stratified {0}-fold CV and evaluations in {1} sec'.format(k, (time() - t0)))
-        return self.classifier
+        print(
+            "classifier was trained with {0}-fold CV and evaluations in {1} sec".format(
+                k, (time() - t0)
+            )
+        )
+        return self.classifier, f"kfold", {"k": k}
 
     def predict(self, samples: list, predict_probabilities=False):
         """
@@ -207,9 +255,15 @@ class MelampusClassifier:
         :type predictions: list, required
         The results are stored in self.metrics object (dictionary).
         """
-        self.metrics['accuracy'] = metrics.accuracy_score(self.outcomes, predictions)
-        self.metrics['precision'] = metrics.precision_score(self.outcomes, predictions, )
-        self.metrics['recall'] = metrics.recall_score(self.outcomes, predictions)
-        self.metrics['area_under_curve'] = metrics.roc_auc_score(self.outcomes, predictions)
-        self.metrics['true_neg'], self.metrics['false_pos'], self.metrics['false_neg'], self.metrics['true_pos'] = \
-            metrics.confusion_matrix(self.outcomes, predictions).ravel()
+        self.metrics["accuracy"] = metrics.accuracy_score(self.outcomes, predictions)
+        self.metrics["precision"] = metrics.precision_score(self.outcomes, predictions,)
+        self.metrics["recall"] = metrics.recall_score(self.outcomes, predictions)
+        self.metrics["area_under_curve"] = metrics.roc_auc_score(
+            self.outcomes, predictions
+        )
+        (
+            self.metrics["true_neg"],
+            self.metrics["false_pos"],
+            self.metrics["false_neg"],
+            self.metrics["true_pos"],
+        ) = metrics.confusion_matrix(self.outcomes, predictions).ravel()
