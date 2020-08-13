@@ -2,6 +2,13 @@ from time import time
 
 import warnings
 from sklearn.exceptions import DataConversionWarning
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    make_scorer,
+    roc_auc_score,
+)
 
 warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 
@@ -14,9 +21,13 @@ from sklearn.model_selection import (
     cross_val_predict,
     train_test_split,
     RepeatedKFold,
+    cross_validate,
 )
 from sklearn.svm import SVC
 from melampus.preprocessor import MelampusPreprocessor
+
+import numpy as np
+import scipy.stats
 
 
 class MelampusClassifier:
@@ -68,16 +79,7 @@ class MelampusClassifier:
         self.outcomes = outcomes
         self.algorithm = algorithm_name
         self.classifier = object
-        self.metrics = {
-            "accuracy": None,
-            "precision": None,
-            "recall": None,
-            "area_under_curve": None,
-            "true_pos": None,
-            "false_pos": None,
-            "true_neg": None,
-            "false_neg": None,
-        }
+        self.metrics = {}
         self.preprocess_data()
         self.init_classifier()
         self.regression_methods = ["lasso_regression", "elastic_net"]
@@ -201,8 +203,10 @@ class MelampusClassifier:
         print("classifier training (method: {})..".format(self.algorithm))
         t0 = time()
         k = 5
-        repetitions = 10
-        validator = KFold(n_splits=k, random_state=random_state)
+        repetitions = 50
+        cross_validator = RepeatedKFold(
+            n_splits=k, n_repeats=repetitions, random_state=random_state
+        )
 
         minimum_number_of_cases = min(
             [i for i in self.num_cases_in_each_class.values()]
@@ -214,20 +218,39 @@ class MelampusClassifier:
             if leave_one_out:
                 k = self.num_cases
 
-            predictions = cross_val_predict(
-                self.classifier, self.data, self.outcomes, cv=validator
+            # predictions = cross_val_predict(
+            #    self.classifier, self.data, self.outcomes, cv=cross_validator
+            # )
+            # accuracy  # ppr        # sensitivity # auc
+            # scoring = {
+            #     "accuracy": accuracy_score,
+            #     "precision": precision_score,
+            #     "recall": recall_score,
+            #     "specificity": make_scorer(recall_score, pos_label=1),
+            #     "area_under_curve": roc_auc_score,
+            # }
+            scoring = ["accuracy", "precision", "recall", "roc_auc"]
+
+            scores = cross_validate(
+                self.classifier,
+                self.data,
+                self.outcomes,
+                scoring=scoring,
+                cv=cross_validator,
             )
+
+            self.calculate_assessment_metrics(scores)
         else:
             raise Exception(
                 "No sense to train a predictive model, number of cases are less than 5.."
             )
-        self.calculate_assessment_metrics(predictions)
+        # self.calculate_assessment_metrics(predictions)
         print(
             "classifier was trained with {0}-fold CV and evaluations in {1} sec".format(
                 k, (time() - t0)
             )
         )
-        return self.classifier, f"kfold", {"k": k}
+        return self.classifier, f"repeatedkfold", {"k": k, "n": repetitions}
 
     def predict(self, samples: list, predict_probabilities=False):
         """
@@ -246,24 +269,48 @@ class MelampusClassifier:
 
         return self.classifier.predict(samples)
 
-    def calculate_assessment_metrics(self, predictions: list):
+    def calculate_assessment_metrics(self, scores: dict):
         """
-        Calculation of assessment metrics using the corresponding scikit-learn modules. The predictions on which the model
-        is being assessed are calculated on the test samples derived by each of the cross-validation iterations.
+        Calculation of assessment metrics using the corresponding scikit-learn modules.
+        The confidence intervals for each metric is calculated based on the number
+        of K folds and N repetitions performed in the cross-validation.
 
-        :param predictions: A list with classifier predictions on the test samples
-        :type predictions: list, required
+        :param scores: A dictionary with the various metrics to evaluate
+        :type scores: dict, required
         The results are stored in self.metrics object (dictionary).
         """
-        self.metrics["accuracy"] = metrics.accuracy_score(self.outcomes, predictions)
-        self.metrics["precision"] = metrics.precision_score(self.outcomes, predictions,)
-        self.metrics["recall"] = metrics.recall_score(self.outcomes, predictions)
-        self.metrics["area_under_curve"] = metrics.roc_auc_score(
-            self.outcomes, predictions
+        self.metrics["accuracy"] = mean_confidence_interval(scores["test_accuracy"])
+        self.metrics["positive_predictive_value"] = mean_confidence_interval(
+            scores["test_precision"]
         )
-        (
-            self.metrics["true_neg"],
-            self.metrics["false_pos"],
-            self.metrics["false_neg"],
-            self.metrics["true_pos"],
-        ) = metrics.confusion_matrix(self.outcomes, predictions).ravel()
+        self.metrics["sensitivity"] = mean_confidence_interval(scores["test_recall"])
+        self.metrics["auc"] = mean_confidence_interval(scores["test_roc_auc"])
+
+    # def calculate_assessment_metrics(self, predictions: list):
+    #     """
+    #     Calculation of assessment metrics using the corresponding scikit-learn modules. The predictions on which the model
+    #     is being assessed are calculated on the test samples derived by each of the cross-validation iterations.
+    #
+    #     :param predictions: A list with classifier predictions on the test samples
+    #     :type predictions: list, required
+    #     The results are stored in self.metrics object (dictionary).
+    #     """
+    # self.metrics["accuracy"] = metrics.accuracy_score(self.outcomes, predictions)
+    # self.metrics["precision"] = metrics.precision_score(self.outcomes, predictions,)
+    # self.metrics["recall"] = metrics.recall_score(self.outcomes, predictions)
+    # self.metrics["area_under_curve"] = metrics.roc_auc_score(
+    #     self.outcomes, predictions
+    # )
+    # (
+    #     self.metrics["true_neg"],
+    #     self.metrics["false_pos"],
+    #     self.metrics["false_neg"],
+    #     self.metrics["true_pos"],
+    # ) = metrics.confusion_matrix(self.outcomes, predictions).ravel()
+
+
+def mean_confidence_interval(data, confidence=0.95):
+    n = len(data)
+    m, se = np.mean(data), scipy.stats.sem(data)
+    h = se * scipy.stats.t.ppf((1 + confidence) / 2.0, n - 1)
+    return {"m": m, "h": h}
