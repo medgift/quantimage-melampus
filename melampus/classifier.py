@@ -310,7 +310,16 @@ class MelampusClassifier:
 
 
 def mean_confidence_interval(data, confidence=0.95):
-    n = len(data)
-    m, se = np.mean(data), scipy.stats.sem(data)
-    h = se * scipy.stats.t.ppf((1 + confidence) / 2.0, n - 1)
-    return {"m": m, "h": h}
+    alpha = 1 - confidence
+    return {
+        "mean": np.mean(data),
+        "inf_value": np.quantile(data, alpha / 2),
+        "sup_value": np.quantile(data, 1 - alpha / 2),
+    }
+
+
+# def mean_confidence_interval(data, confidence=0.95):
+#     n = len(data)
+#     m, se = np.mean(data), scipy.stats.sem(data)
+#     h = se * scipy.stats.t.ppf((1 + confidence) / 2.0, n - 1)
+#     return {"m": m, "h": h}
