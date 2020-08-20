@@ -13,6 +13,7 @@ from sklearn.metrics import (
 warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 
 from sklearn import metrics
+from sklearn.metrics import recall_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import (
@@ -222,14 +223,14 @@ class MelampusClassifier:
             #    self.classifier, self.data, self.outcomes, cv=cross_validator
             # )
             # accuracy  # ppr        # sensitivity # auc
-            # scoring = {
-            #     "accuracy": accuracy_score,
-            #     "precision": precision_score,
-            #     "recall": recall_score,
-            #     "specificity": make_scorer(recall_score, pos_label=1),
-            #     "area_under_curve": roc_auc_score,
-            # }
-            scoring = ["accuracy", "precision", "recall", "roc_auc"]
+            scoring = {
+                "accuracy": "accuracy",
+                "precision": "precision",
+                "recall": "recall",
+                "specificity": make_scorer(recall_score, pos_label=0),
+                "roc_auc": "roc_auc",
+            }
+            # scoring = ["accuracy", "precision", "recall", "roc_auc"]
 
             scores = cross_validate(
                 self.classifier,
@@ -284,6 +285,9 @@ class MelampusClassifier:
             scores["test_precision"]
         )
         self.metrics["sensitivity"] = mean_confidence_interval(scores["test_recall"])
+        self.metrics["specificity"] = mean_confidence_interval(
+            scores["test_specificity"]
+        )
         self.metrics["auc"] = mean_confidence_interval(scores["test_roc_auc"])
 
     # def calculate_assessment_metrics(self, predictions: list):
