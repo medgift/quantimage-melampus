@@ -42,18 +42,22 @@ class MelampusPreprocessor(object):
 
         # store patient ID in another list
         try:
-            self.ids = self.data['PatientID']
+            self.ids = self.data["PatientID"]
             self.num_cases = len(self.ids)
             if self.target_col is not None:
-                self.num_cases_in_each_class = self.data[self.target_col].value_counts().to_dict()
+                self.num_cases_in_each_class = (
+                    self.data[self.target_col].value_counts().to_dict()
+                )
             else:
                 if len(self.outcomes) != len(self.data):
-                    raise Exception('Incosistent number of cases between outcomes and samples')
+                    raise Exception(
+                        "Incosistent number of cases between outcomes and samples"
+                    )
 
                 for el in self.outcomes:
                     self.num_cases_in_each_class[el] = self.outcomes.count(el)
 
-            self.data = self.data.drop('PatientID', axis=1)  # delete column with Ids
+            self.data = self.data.drop("PatientID", axis=1)  # delete column with Ids
         except KeyError:
             pass
 

@@ -204,7 +204,7 @@ class MelampusClassifier:
         print("classifier training (method: {})..".format(self.algorithm))
         t0 = time()
         k = 5
-        repetitions = 50
+        repetitions = 5
         cross_validator = RepeatedKFold(
             n_splits=k, n_repeats=repetitions, random_state=random_state
         )
