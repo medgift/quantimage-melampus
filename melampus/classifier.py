@@ -22,6 +22,7 @@ from sklearn.model_selection import (
     cross_val_predict,
     train_test_split,
     RepeatedKFold,
+    RepeatedStratifiedKFold,
     cross_validate,
 )
 from sklearn.svm import SVC
@@ -205,7 +206,7 @@ class MelampusClassifier:
         t0 = time()
         k = 5
         repetitions = 5
-        cross_validator = RepeatedKFold(
+        cross_validator = RepeatedStratifiedKFold(
             n_splits=k, n_repeats=repetitions, random_state=random_state
         )
 
