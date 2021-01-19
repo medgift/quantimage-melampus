@@ -17,11 +17,8 @@ from sklearn.metrics import recall_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import (
-    StratifiedKFold,
-    KFold,
     cross_val_predict,
     train_test_split,
-    RepeatedKFold,
     RepeatedStratifiedKFold,
     cross_validate,
 )
@@ -252,7 +249,7 @@ class MelampusClassifier:
                 k, (time() - t0)
             )
         )
-        return self.classifier, f"repeatedkfold", {"k": k, "n": repetitions}
+        return self.classifier, f"repeatedstratifiedkfold", {"k": k, "n": repetitions}
 
     def predict(self, samples: list, predict_probabilities=False):
         """
