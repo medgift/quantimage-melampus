@@ -1,11 +1,13 @@
-from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest
+from sklearn.feature_selection import VarianceThreshold, RFECV, SelectKBest, GenericUnivariateSelect, f_classif
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 import numpy as np
 import pandas as pd
 
+from melampus.preprocessor import MelampusPreprocessor
 
-class MelampusFeatureSelector:
+
+class MelampusFeatureSelector(MelampusPreprocessor):
     def __init__(self, filename: str = None, dataframe: pd.DataFrame = None):
         if not filename:
             self.data = dataframe
@@ -16,6 +18,21 @@ class MelampusFeatureSelector:
     Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
     It inherits the inputs of :class:`melampus.preprocessor.MelampusPreprocessor`
     """
+
+    def univariate_f_classification(self, mode='k_best', param=5):
+        """
+        Returns dataset including only 'best' features selected by F score (univariate, for classification problem).
+
+        Selection approaches:
+        :param mode: selection mode; one of: ‘percentile’, ‘k_best’, ‘fpr’, ‘fdr’, ‘fwe’; default is 'k_best'
+        :param params: float or int depending on feature selection mode; default is 5 for '5 k-best'
+         For more details see scikit-learn feature_selection.GenericUnivariateSelect
+        :return: transformed dataset, only containing selected features
+        """
+        sel = GenericUnivariateSelect(f_classif, mode=mode, param=param)
+        sel.fit_transform(self.data, self.outcome)
+        return self.data[self.data.columns[sel.get_support(indices=True)]]
+
 
     def variance_threshold(self, p_val=None):
         """
