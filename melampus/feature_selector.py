@@ -4,15 +4,10 @@ from sklearn.linear_model import LogisticRegression
 import numpy as np
 import pandas as pd
 
-from melampus.preprocessor import MelampusPreprocessor
+from melampus.melampus_base import Melampus
 
 
-class MelampusFeatureSelector(MelampusPreprocessor):
-    def __init__(self, filename: str = None, dataframe: pd.DataFrame = None):
-        if not filename:
-            self.data = dataframe
-        else:
-            self.data = pd.read_csv(filename)
+class MelampusFeatureSelector(Melampus):
 
     """
     Melampus Feature Selector consists of three methods for identifying features based on the filter we want to apply.
@@ -30,8 +25,11 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         :return: transformed dataset, only containing selected features
         """
         sel = GenericUnivariateSelect(f_classif, mode=mode, param=param)
-        sel.fit_transform(self.data, self.outcome)
-        return self.data[self.data.columns[sel.get_support(indices=True)]]
+        sel.fit_transform(self.data, self.outcomes)
+        selected_features_idxs = sel.get_support(indices=True)
+        self.data_columns = self.data_columns[selected_features_idxs]
+        self.data = self.data[:, selected_features_idxs]
+        return self.get_data_as_dataframe()
 
 
     def variance_threshold(self, p_val=None):
@@ -51,9 +49,10 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         try:
             # Perform the feature selection
             sel.fit_transform(self.data)
-
-            # Return a DataFrame with remaining column names
-            return self.data[self.data.columns[sel.get_support(indices=True)]], p
+            selected_features_idxs = sel.get_support(indices=True)
+            self.data_columns = self.data_columns[selected_features_idxs]
+            self.data = self.data[:, selected_features_idxs]
+            return self.get_data_as_dataframe(), p
         except Exception as e:
             raise Exception(
                 "feature_selector-variance_threshold: EXCEPTION: {}".format(e)
@@ -70,7 +69,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         :return: pandas dataframe
         """
 
-        df = self.data
+        df = self.get_data_as_dataframe()
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         upper = corr_matrix.where(
             np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool)
@@ -80,9 +79,7 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         df = df.drop(df[to_drop], axis=1)
         return df
 
-    def identify_correlated_features_with_target_variable(
-        self, score: float, metric: str, target_var: str
-    ):
+    def identify_correlated_features_with_target_variable(self, score: float, metric: str):
         """
         With this method we identify all features that are high correlated with the outcome variable.
         It should be used only for regression tasks. The target variable **must be included into the dataset**.
@@ -91,19 +88,15 @@ class MelampusFeatureSelector(MelampusPreprocessor):
         :type score: float, required
         :param metric: {‘pearson’, ‘kendall’, ‘spearman’} or callable function
         :type metric: str, required
-        :param target_var: name of the target variable included in the csv dataset
-        :type target_var: str, required
         :return: The names of the relevant correlated features
         """
-
-        df = self.data.join(
-            self.outcomes
-        )  # Merge data with target variable into one dataframe
+        outcome_name='outcome'
+        df = self.get_data_as_dataframe(include_outcomes=True, outcome_name=outcome_name)
         corr_matrix = df.corr(method=metric).abs()  # correlation matrix
         # Correlation with output variable
-        cor_target = abs(corr_matrix[target_var])
+        cor_target = abs(corr_matrix[outcome_name])
         corr_feats = cor_target[cor_target > score]
-        relevant_feats = corr_feats.drop(target_var)  # remove target variable
+        relevant_feats = corr_feats.drop(outcome_name)  # remove target variable
         return relevant_feats
 
     def rfe(self):
