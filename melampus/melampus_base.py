@@ -86,7 +86,7 @@ class Melampus(object):
     def get_data_as_dataframe(self, include_ids=False, include_outcomes=False, outcome_name='outcome'):
         df = DataFrame(columns=self.data_columns, data=self.data)
         if include_ids:
-            df[self.id_names] = self.ids
+            df[self.id_column_names] = self.ids
         if include_outcomes:
             df[outcome_name] = self.outcomes
         return df
