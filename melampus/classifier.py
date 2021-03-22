@@ -1,6 +1,8 @@
 from time import time
 
 import warnings
+
+from pandas import DataFrame
 from sklearn.exceptions import DataConversionWarning
 from sklearn.metrics import (
     accuracy_score,
@@ -9,6 +11,8 @@ from sklearn.metrics import (
     make_scorer,
     roc_auc_score,
 )
+
+from melampus.melampus_base import Melampus
 
 warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 
@@ -29,7 +33,7 @@ import numpy as np
 import scipy.stats
 
 
-class MelampusClassifier:
+class MelampusClassifier(Melampus):
     """
     This is a machine learning classifier for datasets from medical images.
     The initialization of the melampus classifier object contains two required input parameters and some optional
@@ -58,30 +62,26 @@ class MelampusClassifier:
     """
 
     def __init__(
-        self,
-        filename: str,
-        algorithm_name: str,
-        outcomes=[],
-        target_col=None,
-        scaling=False,
-        dim_red=(False, 0),
-        normalize=False,
+            self,
+            filename: str = None,
+            dataframe: DataFrame = None,
+            target_col=None,
+            outcomes=[],
+            id_names_map={'patient_id': 'PatientID'},
+            algorithm_name=None,
+            scaling=False,
+            dim_red=(False, 0),
+            normalize=False,
     ):
-        self.filename = filename
-        self.target_col = target_col
+        super().__init__(filename, dataframe, target_col, outcomes, id_names_map)
+        self.algorithm = algorithm_name
         self.scaling = scaling
         self.dim_red = dim_red
         self.normalize = normalize
-        self.data, self.outcomes = [], []
-        self.num_cases = int
-        self.num_cases_in_each_class = []
-        self.outcomes = outcomes
-        self.algorithm = algorithm_name
         self.classifier = object
         self.metrics = {}
         self.preprocess_data()
         self.init_classifier()
-        self.regression_methods = ["lasso_regression", "elastic_net"]
 
     def init_classifier(self):
         """
@@ -109,7 +109,10 @@ class MelampusClassifier:
         """
 
         pre = MelampusPreprocessor(
-            filename=self.filename, target_col=self.target_col, outcomes=self.outcomes
+            dataframe=self.get_data_as_dataframe(include_ids=True, include_outcomes=False),
+            target_col=self.target_col,
+            outcomes=self.outcomes,
+            id_names_map=self.id_names_map
         )
         if self.scaling:
             pre.standarize_data()
@@ -318,7 +321,6 @@ def mean_confidence_interval(data, confidence=0.95):
         "inf_value": np.quantile(data, alpha / 2),
         "sup_value": np.quantile(data, 1 - alpha / 2),
     }
-
 
 # def mean_confidence_interval(data, confidence=0.95):
 #     n = len(data)
