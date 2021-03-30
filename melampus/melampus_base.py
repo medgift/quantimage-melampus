@@ -1,6 +1,27 @@
 from pandas import DataFrame, read_csv
 from pathlib import Path
 
+#
+# class Melampus(object):
+#
+#     def __init__(self, dataframe):
+#
+#         self.dataframe = dataframe
+#
+#     def get_data_as_array(self):
+#         return self.dataframe.values
+#
+#     def get_data_as_dataframe(self):
+#         return self.dataframe
+#
+#     def _update_data(self, data_array):
+#         data_array_orig = self.get_data_as_array()
+#         if data_array_orig.shape == data_array.shape:
+#             self.dataframe.loc[:]=data_array
+#         else:
+#             print("Dimensions of original and new data array do not agree.")
+
+
 class Melampus(object):
     """
     This is the Melampus base class from which further Melampus Classes inherit.
