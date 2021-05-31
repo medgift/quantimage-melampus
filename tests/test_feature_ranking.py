@@ -5,12 +5,12 @@ import pandas as pd
 import numpy as np
 
 
-class TestMelampusFeatureRanl(unittest.TestCase):
+class TestMelampusFeatureRank(unittest.TestCase):
 
     def setUp(self):
         self.path_to_data = config.path_to_test_data
         self.data_df = pd.read_csv(self.path_to_data)
-        self.outcomes = config.gen_random_outcome(self.data_df, n_classes=2)
+        self.outcomes = config.gen_random_outcome(self.data_df, n_classes=5)
         self.mfr = MelampusFeatureRank(filename=self.path_to_data, outcomes=self.outcomes)
 
     def test_return_by_score(self):
@@ -53,6 +53,8 @@ class TestMelampusFeatureRanl(unittest.TestCase):
         self.mfr.num_features=len(self.mfr.data_columns)
         names_descending = self.mfr.rank_by_univariate_f(ascending=False, return_type='names')
         self.assertTrue(names_descending[0]=='very_predictive')
+        #values_descending = self.mfr.rank_by_univariate_f(ascending=False, return_type='array')
+        #print(values_descending)
 
 
 

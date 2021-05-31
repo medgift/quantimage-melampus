@@ -63,15 +63,23 @@ class DB(DataIO):
         self.dataframe.columns.names = [self.data_name]
         self._map_dataframe_id_names(external_to_internal=True)
 
-    def _map_dataframe_id_names(self, external_to_internal=True):
+    def _map_dataframe_id_names(self, external_to_internal=True, inplace=True):
         if external_to_internal:
             map = self.id_names_map_ext_to_int
         else:
             map = self.id_names_map_int_to_ext
-        self.dataframe.reset_index(drop=True, inplace=True)
-        self.dataframe.rename(columns=map, inplace=True)
-        if len(map)>0:
-            self.dataframe.set_index(list(map.values()), inplace=True)
+        if inplace:
+            self.dataframe.reset_index(drop=True, inplace=True)
+            self.dataframe.rename(columns=map, inplace=True)
+            if len(map)>0:
+                self.dataframe.set_index(list(map.values()), inplace=True)
+        else:
+            df = self.dataframe.reset_index(drop=False, inplace=False)
+            df.rename(columns=map, inplace=True)
+            print(df)
+            if len(map)>0:
+                df.set_index(list(map.values()), inplace=True)
+            return df
 
     def export_dataframe(self, path_to_file, orig_ids=True):
         if orig_ids:
@@ -180,7 +188,7 @@ class DB(DataIO):
         return self.dataframe.values
 
     def get_data_as_dataframe(self):
-        return self.dataframe
+        return self._map_dataframe_id_names(external_to_internal=False, inplace=False)
 
     def _update_data(self, data_array):
         data_array_orig = self.get_data_as_array()
