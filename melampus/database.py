@@ -1,5 +1,6 @@
 from pandas import DataFrame, MultiIndex, read_csv
 from pathlib import Path
+from pandas import to_datetime
 
 
 class DataIO(object):
@@ -93,14 +94,17 @@ class DB(DataIO):
     def _get_external_ids(self, ids):
         return self._get_mapped_ids(ids, external_to_internal=False)
 
-    def _get_level_names(self, which='index'):
+    def _get_level_names(self, which='index', id_as_external=False):
         if which == 'index':
             levels = self.dataframe.index
         elif which == 'columns':
             levels = self.dataframe.columns
-        return levels.names
+        if id_as_external:
+            return self._get_external_ids(levels.names)
+        else:
+            return levels.names
 
-    def _get_available_indices(self, id_as_external=True):
+    def _get_available_levels(self, id_as_external=True):
         columns = list(self.dataframe.reset_index().drop(columns=['index']).columns)
         if self.df_index_status=='original':
             indices_avail = [idx_var for idx_var in self.id_names_map_ext_to_int.keys() if idx_var in columns]
@@ -111,13 +115,13 @@ class DB(DataIO):
             indices_avail = self._get_external_ids(indices_avail)
         return indices_avail
 
-    def _get_current_indices(self, ids_as_external=True):
+    def _get_current_levels(self, ids_as_external=True):
         levels = [level for level in self._get_level_names(which='index') if not level is None]
         if len(levels)==0:
             if self.df_index_status=='internal':
-                levels = self._get_available_indices(id_as_external=False)
+                levels = self._get_available_levels(id_as_external=False)
             elif self.df_index_status=='original':
-                levels = self._get_available_indices(id_as_external=True)
+                levels = self._get_available_levels(id_as_external=True)
         if ids_as_external and self.df_index_status=='internal':
             levels = self._get_external_ids(levels)
         elif (not ids_as_external) and self.df_index_status=='original':
@@ -131,10 +135,10 @@ class DB(DataIO):
             print("Dataframe already uses original indices")
         else:
             if external_to_internal:
-                relevant_indices = self._get_current_indices(ids_as_external=True)
+                relevant_indices = self._get_current_levels(ids_as_external=True)
                 map = { key:value for key, value in self.id_names_map_ext_to_int.items() if key in relevant_indices}
             else:
-                relevant_indices = self._get_current_indices(ids_as_external=False)
+                relevant_indices = self._get_current_levels(ids_as_external=False)
                 map = { key:value for key, value in self.id_names_map_int_to_ext.items() if key in relevant_indices}
             df = self.dataframe.reset_index(drop=False, inplace=False)
             if 'index' in df.columns:
@@ -238,7 +242,7 @@ class DB(DataIO):
             raise Exception("Cannot expand current columns -- already has levels")
 
     def _get_current_id_names_except(self, exclude_names=['patient_id'], except_name_is_external=False, ids_as_external=True):
-        current_id_names = self._get_current_indices(ids_as_external=except_name_is_external)
+        current_id_names = self._get_current_levels(ids_as_external=except_name_is_external)
         selected_id_names = [id_name for id_name in current_id_names if not id_name in exclude_names]
         if ids_as_external:
             selected_id_names = self._get_external_ids(selected_id_names)
@@ -255,11 +259,57 @@ class DB(DataIO):
             level_names = None
         return level_names
 
-    def get_data_as_array(self):
-        return self.dataframe.values
+    def get_level_values(self, level):
+        if level in self._get_level_names(which='index', id_as_external=True):
+            return list(self.get_data_as_dataframe().index.get_level_values(level).unique())
+        else:
+            raise Exception("'%s' not a level. Available levels are %s"%(level,
+                                                                         self._get_level_names(which='index', id_as_external=True)))
 
-    def get_data_as_dataframe(self):
-        return self._map_dataframe_index_to_original(inplace=False)
+    def select_on_levels(self, selection_dict: dict, inplace=False):
+        selection = []
+        for level_name in self._get_level_names(which='index', id_as_external=True):
+            if level_name in selection_dict.keys():
+                selected_values = selection_dict[level_name]
+                if not isinstance(selected_values, list):
+                    selected_values = [selected_values]
+                if set(selected_values).issubset(self.get_level_values(level_name)):
+                    selection.append(selected_values)
+                else:
+                    raise Exception("Selection for level '%s' contains invalid items"%level_name)
+            else:
+                selection.append(slice(None))
+        if inplace:
+            self.dataframe=self.get_data_as_dataframe(orig_ids=False).loc[tuple(selection),]
+        else:
+            return self.get_data_as_dataframe(orig_ids=True).loc[tuple(selection),]
+
+    def get_data_as_array(self, orig_ids=True, return_category_code=False):
+        return self.get_data_as_dataframe(orig_ids=orig_ids, return_category_code=return_category_code)
+
+    def get_data_as_dataframe(self, orig_ids=True, return_category_code=False):
+        if orig_ids:
+            df = self._map_dataframe_index_to_original(inplace=False).copy()
+        else:
+            df = self.dataframe.copy()
+        if return_category_code:
+            dtypes_dict = { col_name : df[col_name].dtype.name for col_name in df.columns}
+            for col_name, dtype in dtypes_dict.items():
+                if dtype=='category':
+                    df[col_name] = df[col_name].cat.codes
+        return df
+
+
+    def get_var_data(self, var_name, return_cat_codes=True):
+        if var_name in self.get_data_as_dataframe().columns:
+            var_series = self.get_data_as_dataframe()[var_name]
+            data = var_series.values.to_numpy()
+            if var_series.dtype.name=='category':
+                if return_cat_codes:
+                    data = var_series.cat.codes.to_numpy()
+            return data
+        else:
+            raise Exception("Variable '%s' does not exist in DB" % var_name)
 
     def _update_data(self, data_array):
         data_array_orig = self.get_data_as_array()
@@ -274,6 +324,39 @@ class DB(DataIO):
         super().export_dataframe(path_to_file)
         if orig_ids:
             self._map_dataframe_index_to_internal(inplace=True)
+
+    def _check_guess_dtypes(self):
+        self.dataframe.infer_objects()
+        dtype_dict = {}
+        df = self.get_data_as_dataframe()
+        for col in df.columns:
+            dtype = df[col].dtype.name
+            if dtype=='object':
+                dtype_dict[col] = dtype
+                print("- unidentified type for column '%s': %s"%(col, dtype))
+        return dtype_dict
+
+    def assert_type_datetime(self, name, format="%Y-%m-%d"):
+        s = self._get_outcome(name)
+        self.dataframe[name] = to_datetime(s, format=format)
+
+    def assert_type_categorical(self, name, order=None):
+        s = self._get_outcome(name)
+        s = s.astype('category')
+        s = s.cat.as_unordered()
+        if order is not None:
+            s = s.cat.set_categories(order, ordered=True)
+            s = s.cat.as_ordered()
+        self.dataframe[name] = s
+
+
+    # def _expand_categorical(self, name, order=None):
+    #     if self.dataframe[name].dtype.name != 'category':
+    #         print("Column '%s' not categorical, trying to convert"%name)
+    #         self.assert_type_categorical(name=name, order=order)
+    #     name_codes = "%s_codes"%name
+    #     self.dataframe[name_codes] = self.dataframe[name].cat.codes
+
 
 
 class FeatureDB(DB):
@@ -322,17 +405,14 @@ class OutcomeDB(DB):
 
         super().__init__(data, id_int_to_ext_map, data_name, flattening_separator)
 
-    def _assert_categorical(self, outcome_name, order=None):
-        if outcome_name in self.dataframe.columns:
-            s = self.dataframe[outcome_name].astype('category')
-            if order is not None:
-                s.cat.set_categories(order, ordered=True)
-            self.dataframe[outcome_name] = s
+    def get_outcome_names(self):
+        return self.get_data_as_dataframe().columns
 
-    def _expand_categorical(self, outcome_name):
+    def _get_outcome(self, outcome_name):
         if outcome_name in self.dataframe.columns:
-            if self.dataframe[outcome_name].dtype.name != 'category':
-                print("Outcome '%s' not categorical, trying to convert"%outcome_name)
-                self._assert_categorical(outcome_name=outcome_name)
-            outcome_name_codes = "%s_codes"%outcome_name
-            self.dataframe[outcome_name_codes] = self.dataframe[outcome_name].cat.codes
+            return self.dataframe[outcome_name]
+        else:
+            raise Exception("Outcome '%s' not available"%outcome_name)
+
+
+

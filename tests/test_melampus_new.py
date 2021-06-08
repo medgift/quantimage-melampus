@@ -1,5 +1,6 @@
 
 from melampus.melampus import Melampus
+from melampus.database import OutcomeDB
 import tests.config as config
 import pandas as pd
 import numpy as np
@@ -8,19 +9,28 @@ path_to_feature_data = config.path_to_test_data
 feature_data_df = pd.read_csv(path_to_feature_data)
 
 # construct dummy outcome data (IDs: PatientID, Modality)
-outcomes_df = feature_data_df[['PatientID', 'Modality']].drop_duplicates()
+outcomes_df = feature_data_df[['PatientID', 'ROI']].drop_duplicates()
 outcomes = config.gen_random_outcome(outcomes_df, n_classes=2)
+
+cat_name_dict = {1: "aaa", 0:'bbb'}
+
 outcomes_df['outcome_1'] = outcomes
+outcomes_df['outcome_2'] = outcomes_df.outcome_1.apply(lambda x: cat_name_dict[x])
+
+
 
 # instantiate Melampus with feature data and matching outcome data
 # you can provide either path or dataframe
 M = Melampus(feature_data=feature_data_df, outcome_data=outcomes_df)
 
+M.outcome_db_curr.dataframe
+M.outcome_db_curr._expand_categorical('outcome_2')
+
 # M has maintains two instances of 'FeatureDB'
 M.feature_db_orig # original data as read in from csv / provided as dataframe
 M.feature_db_curr # copy of original data that is being updated
 # M also has an instance of 'OutcomeDB' which keeps the outcome data
-M.outcome_db
+M.outcome_db_curr
 
 # Each of those '*DB's adds specific functionality to a common 'DB' class which in turn inherits from a 'dataIO' class.
 
