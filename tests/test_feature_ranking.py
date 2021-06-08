@@ -12,6 +12,7 @@ class TestMelampusFeatureRank(unittest.TestCase):
         self.data_df = pd.read_csv(self.path_to_data)
         self.outcomes = config.gen_random_outcome(self.data_df, n_classes=5)
         self.mfr = MelampusFeatureRank(filename=self.path_to_data, outcomes=self.outcomes)
+        self.mfr.remove_nans(nan_policy='drop-columns')
 
     def test_return_by_score(self):
         rnd_score = np.random.random(self.mfr.num_features)

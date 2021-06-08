@@ -29,7 +29,7 @@ class MelampusFeatureRank(Melampus):
         elif return_type=='names':
             return self.data_columns[indices_sorted]
         elif return_type=='array':
-            return self.get_data_as_array()[:, indices_sorted]
+            return self.data[:, indices_sorted]
         elif return_type=='dataframe':
             return self.get_data_as_dataframe()[self.data_columns[indices_sorted]]
         else:

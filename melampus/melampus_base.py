@@ -1,4 +1,4 @@
-from pandas import DataFrame, read_csv
+from pandas import DataFrame, Series, read_csv
 from pathlib import Path
 
 #
@@ -56,32 +56,50 @@ class Melampus(object):
         else:
             raise Exception("Specify one of 'filename' / 'dataframe'")
 
-        self.ids, data_tmp = self._split_columns_from_data(dataframe, self.id_column_names)
+        #self.ids, data_tmp = self._split_columns_from_data(dataframe, self.id_column_names)
 
         # check for target_col vs outcomes and process
         self.target_col = target_col
         if self.target_col is not None and len(outcomes)==0:
-            outcomes, data_tmp = self._split_columns_from_data(data_tmp, self.target_col)
-            self.outcomes = list(outcomes.values)
+            outcomes_tmp, dataframe = self._split_columns_from_data(dataframe, self.target_col)
         elif self.target_col is None and len(outcomes)>0:
-            if len(outcomes) != len(data_tmp):
+            if len(outcomes) != len(dataframe):
                 raise Exception("Inconsistent number of cases between outcomes (%i) and samples (%i)"%(
-                                                                                len(self.outcomes, self.num_cases)))
+                                                                                len(outcomes, self.num_cases)))
             else:
-                self.outcomes = outcomes
+                outcomes_tmp = outcomes
         else:
             raise Exception("Specify one of 'target_col' / 'outcomes'")
 
-        # assign cleaned data table
-        self.data_columns = data_tmp.columns # pd.Index
-        self.data = data_tmp.values  # self.data is updated by transformations and represents the current 'state'
+        # assign outcomes as Series
+        self._update_outcomes(outcomes_tmp)
 
+        # assign cleaned data table
+        self._update_data(dataframe)
+
+
+
+    def _update_outcomes(self, outcomes):
+        self.outcomes_series = Series(outcomes)
+        if self.outcomes_series.dtype.name == 'object':
+            self.outcomes_series = self.outcomes_series.astype('category')
+        dtype = self.outcomes_series.dtype.name
+        if dtype == 'category':
+            self.outcomes = self.outcomes_series.cat.codes.tolist()
+            self.outcomes_labels = self.outcomes_series.values.tolist()
+        else:
+            self.outcomes = self.outcomes_series.values.tolist()
         # compute num_cases / per class
-        self.num_features = len(self.data_columns)
-        self.num_cases = len(self.ids)
         self.num_cases_in_each_class = {}
         for el in self.outcomes:
-            self.num_cases_in_each_class[el] = self.outcomes.count(el)
+            self.num_cases_in_each_class[el] = len(self.get_outcomes_as_array())
+
+    def _update_data(self, dataframe):
+        self.ids, data_tmp = self._split_columns_from_data(dataframe, self.id_column_names)
+        self.data = data_tmp.values  # self.data is updated by transformations and represents the current 'state'
+        self.data_columns = data_tmp.columns  # pd.Index
+        self.num_features = len(self.data_columns)
+        self.num_cases = len(self.ids)
 
     def _read_csv(self, filename: str = None):
         if not filename:
@@ -94,23 +112,57 @@ class Melampus(object):
     def _split_columns_from_data(self, dataframe: DataFrame, column_names: list):
         data_sel = None
         data_remaining = dataframe
-        try:
+        col_in_df = [col in dataframe.columns for col in column_names]
+        if all(col_in_df):
             data_sel = dataframe[column_names]
             data_remaining = dataframe.drop(columns=column_names)
-        except KeyError as e:
-            print(e)
+        else:
+            raise Exception("Not all specified column names in DataFrame")
         return data_sel, data_remaining
 
     def get_data_as_array(self):
         return self.data
 
-    def get_data_as_dataframe(self, include_ids=False, include_outcomes=False, outcome_name='outcome'):
+    def get_outcomes_as_array(self, categorical_as_codes=True):
+        if hasattr(self, 'outcomes_labels') and not categorical_as_codes:
+            return self.outcomes_labels
+        else:
+            return self.outcomes
+
+    def get_data_as_dataframe(self, include_ids=False, include_outcomes=False, outcome_name='outcome', **kwargs):
         df = DataFrame(columns=self.data_columns, data=self.data)
         if include_ids:
             df[self.id_column_names] = self.ids
         if include_outcomes:
-            df[outcome_name] = self.outcomes
+            df[outcome_name] = self.get_outcomes_as_array(**kwargs)
         return df
+
+    def remove_nans(self, nan_policy = 'ignore'):
+        df_features = self.get_data_as_dataframe(include_ids=True)
+        outcomes_series = self.outcomes_series
+
+        sel_outcome_not_nan = ~outcomes_series.isna()
+        sel_features_not_nan_by_row = (df_features.isna().sum(axis=1) == 0)
+        sel_features_not_nan_by_col = (df_features.isna().sum(axis=0) == 0)
+        colums_to_keep = sel_features_not_nan_by_col[sel_features_not_nan_by_col]
+        colums_to_keep = colums_to_keep.index.to_list()
+
+        if nan_policy == 'drop-columns':
+            outcomes_series = outcomes_series.loc[sel_outcome_not_nan]
+        elif nan_policy == 'drop-rows':
+            outcomes_series = outcomes_series.loc[sel_features_not_nan_by_row & sel_outcome_not_nan]
+        elif nan_policy == 'ignore':
+            outcomes_series = outcomes_series.loc[sel_outcome_not_nan]
+        self._update_outcomes(outcomes_series)
+
+        if nan_policy == 'drop-columns':
+            df_features = df_features.loc[sel_outcome_not_nan]
+            df_features = df_features[colums_to_keep]
+        elif nan_policy == 'drop-rows':
+            df_features = df_features.loc[sel_features_not_nan_by_row & sel_outcome_not_nan]
+        elif nan_policy == 'ignore':
+            df_features = df_features.loc[sel_outcome_not_nan]
+        self._update_data(df_features)
 
     def export_data(self, path_to_file, **kwargs):
         path_to_file = Path(path_to_file)
