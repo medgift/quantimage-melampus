@@ -1,5 +1,6 @@
 from pandas import DataFrame, Series, read_csv
 from pathlib import Path
+from numpy import unique
 
 #
 # class Melampus(object):
@@ -91,8 +92,9 @@ class Melampus(object):
             self.outcomes = self.outcomes_series.values.tolist()
         # compute num_cases / per class
         self.num_cases_in_each_class = {}
-        for el in self.outcomes:
-            self.num_cases_in_each_class[el] = len(self.get_outcomes_as_array())
+        for el in unique(self.outcomes):
+            outcome = self.get_outcomes_as_array()
+            self.num_cases_in_each_class[el] = list(outcome).count(el)
 
     def _update_data(self, dataframe):
         self.ids, data_tmp = self._split_columns_from_data(dataframe, self.id_column_names)
