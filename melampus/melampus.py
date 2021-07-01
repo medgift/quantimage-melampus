@@ -204,7 +204,6 @@ class Melampus(object):
         else:
             outcome_series = self.outcome_db_curr.dataframe[outcome_cols[0]]
             sel_outcome_not_nan = ~outcome_series.isna()
-            print(sel_outcome_not_nan)
 
             df_features = self.feature_db_curr.dataframe
             sel_features_not_nan_by_row = (df_features.isna().sum(axis=1) == 0)

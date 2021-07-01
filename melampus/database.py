@@ -285,7 +285,7 @@ class DB(DataIO):
             return self.get_data_as_dataframe(orig_ids=True).loc[tuple(selection),]
 
     def get_data_as_array(self, orig_ids=True, return_category_code=False):
-        return self.get_data_as_dataframe(orig_ids=orig_ids, return_category_code=return_category_code)
+        return self.get_data_as_array(orig_ids=orig_ids, return_category_code=return_category_code)
 
     def get_data_as_dataframe(self, orig_ids=True, return_category_code=False):
         if orig_ids:
