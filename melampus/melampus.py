@@ -113,8 +113,8 @@ class Melampus(object):
         else:
             return  self.outcome_db_orig.get_data_as_dataframe(**kwargs)
 
-    def get_data_as_dataframe(self):
-        merged_df = pd.merge(self.get_feature_data_as_dataframe(), self.get_outcome_data_as_dataframe(), left_index=True,
+    def get_data_as_dataframe(self, **kwargs):
+        merged_df = pd.merge(self.get_feature_data_as_dataframe(**kwargs), self.get_outcome_data_as_dataframe(**kwargs), left_index=True,
                              right_index=True, how="left")
         return merged_df
 
@@ -142,7 +142,7 @@ class Melampus(object):
         db = self._get_db(name, current=not orig_db)
         db.assert_type_datetime(name=name, format=format)
 
-    def assert_type_categorical(self, name, order=None, orig_db=True):
+    def assert_type_categorical(self, name, order=None, orig_db=False):
         db = self._get_db(name, current= not orig_db)
         db.assert_type_categorical(name=name, order=order)
 
@@ -158,7 +158,9 @@ class Melampus(object):
         self.feature_db_curr.select_on_levels(selection_dict_features, inplace=True)
 
         self._match_index_levels_features_to_outcomes()
+        self._align_samples_features_outcomes()
         self._check_consistency_features_outcomes()
+
 
     def select_features(self, features_to_keep=None, features_to_remove=None, by='name', inplace=True):
         features_avail = self.feature_db_curr.dataframe.columns
@@ -190,7 +192,6 @@ class Melampus(object):
 
     def remove_nans(self, nan_policy='ignore', inplace=True):
         """
-
         :param nan_policy:
             - 'ignore': drops rows where outcome == NaN
             - 'drop-rows': drops rows where outcome == NaN and at least 1 feature value == Nan
@@ -230,7 +231,9 @@ class Melampus(object):
             if inplace:
                 self.feature_db_curr.dataframe = df_features
 
-            return df_features, df_outcome
+            if not inplace:
+                return df_features, df_outcome
+
 
     def get_data_for_analysis(self, return_as='array', return_category_code=True):
         self._check_consistency_features_outcomes()
@@ -240,7 +243,9 @@ class Melampus(object):
         elif return_as=='dataframe':
             X_features = self.get_feature_data_as_dataframe(return_category_code=return_category_code)
             y_outcome = self.get_outcome_data_as_dataframe(return_category_code=return_category_code)
-        return X_features, y_outcome
+        feature_names = self.feature_db_curr.get_feature_names()
+        sample_ids    = self.feature_db_curr.get_sample_ids()
+        return X_features, y_outcome, feature_names, sample_ids
 
     def map_feature_index_to_name(self, index_list):
         return self.feature_db_curr.get_feature_names()[index_list]

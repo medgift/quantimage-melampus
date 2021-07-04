@@ -280,9 +280,16 @@ class DB(DataIO):
             else:
                 selection.append(slice(None))
         if inplace:
-            self.dataframe=self.get_data_as_dataframe(orig_ids=False).loc[tuple(selection),]
+            try:
+                self.dataframe=self.get_data_as_dataframe(orig_ids=False).loc[tuple(selection),]
+            except Exception as e:
+                print(e)
         else:
-            return self.get_data_as_dataframe(orig_ids=True).loc[tuple(selection),]
+            try:
+                return self.get_data_as_dataframe(orig_ids=True).loc[tuple(selection),]
+            except Exception as e:
+                print(e)
+                return self.get_data_as_dataframe(orig_ids=True)
 
     def get_data_as_array(self, orig_ids=True, return_category_code=False):
         return self.get_data_as_dataframe(orig_ids=orig_ids, return_category_code=return_category_code).values
@@ -367,7 +374,12 @@ class FeatureDB(DB):
         super().__init__(data, id_int_to_ext_map, data_name, flattening_separator)
 
     def get_feature_names(self):
-        return self.get_data_as_dataframe().columns
+        return self.get_data_as_dataframe().columns.tolist()
+
+    def get_sample_ids(self, join_by='_'):
+        index = self.get_data_as_dataframe().index.to_flat_index()
+        index_concat = [join_by.join(name) if isinstance(name, tuple) else name for name in index]
+        return index_concat
 
     def get_n_features(self):
         return len(self.get_feature_names())
